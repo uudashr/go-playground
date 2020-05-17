@@ -28,18 +28,35 @@ func TestCORS(t *testing.T) {
 		allowedOrigins []string
 		method         string
 		path           string
-		statusCode     int
 		origin         string
+		statusCode     int
 		retOrigin      string
 		retVary        string
 	}{
-		"No Origin": {
+		// --- Allowed Origins: "*"
+		"No Origin sent, Allowed Origins *": {
+			allowedOrigins: []string{"*"},
+			method:         http.MethodGet,
+			path:           "/hello",
+			statusCode:     http.StatusOK,
+		},
+		"With Origin baz.com sent, Allowed Origins *": {
+			allowedOrigins: []string{"*"},
+			method:         http.MethodGet,
+			path:           "/hello",
+			statusCode:     http.StatusOK,
+			origin:         "https://baz.com",
+			retOrigin:      "*",
+		},
+
+		// --- Allowed Origins: "https://foo.com", "https://bar.com"
+		"No Origin sent, Allowed Origins set": {
 			allowedOrigins: []string{"https://foo.com", "https://bar.com"},
 			method:         http.MethodGet,
 			path:           "/hello",
 			statusCode:     http.StatusOK,
 		},
-		"With Origin foo.com": {
+		"With Origin foo.com sent, Allowed Origins set": {
 			allowedOrigins: []string{"https://foo.com", "https://bar.com"},
 			method:         http.MethodGet,
 			path:           "/hello",
@@ -48,7 +65,7 @@ func TestCORS(t *testing.T) {
 			retOrigin:      "https://foo.com",
 			retVary:        "Origin",
 		},
-		"With Origin bar.com": {
+		"With Origin bar.com sent, Allowed Origins set": {
 			allowedOrigins: []string{"https://foo.com", "https://bar.com"},
 			method:         http.MethodGet,
 			path:           "/hello",
@@ -57,7 +74,7 @@ func TestCORS(t *testing.T) {
 			retOrigin:      "https://bar.com",
 			retVary:        "Origin",
 		},
-		"With Unallowed Origin": {
+		"With Unallowed Origin sent, Allowed Origins set": {
 			allowedOrigins: []string{"https://foo.com", "https://bar.com"},
 			method:         http.MethodGet,
 			path:           "/hello",
