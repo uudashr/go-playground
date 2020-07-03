@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func httpHandler(origins ...string) http.Handler {
+func httpHandler(allowCreds bool, origins ...string) http.Handler {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
 		// do nothing
@@ -17,8 +17,16 @@ func httpHandler(origins ...string) http.Handler {
 
 	var h http.Handler
 	h = r
-	h = handlers.CORS(
+	opts := []handlers.CORSOption{
 		handlers.AllowedOrigins(origins),
+	}
+
+	if allowCreds {
+		opts = append(opts, handlers.AllowCredentials())
+	}
+
+	h = handlers.CORS(
+		opts...,
 	)(h)
 	return h
 }
@@ -26,12 +34,14 @@ func httpHandler(origins ...string) http.Handler {
 func TestCORS(t *testing.T) {
 	testCases := map[string]struct {
 		allowedOrigins []string
+		credsAllowed   bool
 		method         string
 		path           string
 		origin         string
 		statusCode     int
 		retOrigin      string
 		retVary        string
+		retAllowCreds  string
 	}{
 		// --- Allowed Origins: "*"
 		"No Origin sent, Allowed Origins *": {
@@ -81,11 +91,31 @@ func TestCORS(t *testing.T) {
 			statusCode:     http.StatusOK,
 			origin:         "https://baz.com",
 		},
+
+		// Creds Allowed
+		"With Creds Allowed, Origin foo.com sent, Allowed Origins set, return allow creds": {
+			allowedOrigins: []string{"https://foo.com", "https://bar.com"},
+			credsAllowed:   true,
+			method:         http.MethodGet,
+			path:           "/hello",
+			statusCode:     http.StatusOK,
+			origin:         "https://foo.com",
+			retOrigin:      "https://foo.com",
+			retAllowCreds:  "true",
+			retVary:        "Origin",
+		},
+		"With Creds Allowed, No Origin sent, Allowed Origins *, return no allow creds": {
+			allowedOrigins: []string{"*"},
+			credsAllowed:   true,
+			method:         http.MethodGet,
+			path:           "/hello",
+			statusCode:     http.StatusOK,
+		},
 	}
 
 	for k, tc := range testCases {
 		t.Run(k, func(t *testing.T) {
-			h := httpHandler(tc.allowedOrigins...)
+			h := httpHandler(tc.credsAllowed, tc.allowedOrigins...)
 
 			rec := httptest.NewRecorder()
 			req := httptest.NewRequest(tc.method, tc.path, nil)
@@ -102,6 +132,10 @@ func TestCORS(t *testing.T) {
 
 			if got, want := rec.Header().Get("Access-Control-Allow-Origin"), tc.retOrigin; got != want {
 				t.Errorf("Origin got: %q, want: %q", got, want)
+			}
+
+			if got, want := rec.Header().Get("Access-Control-Allow-Credentials"), tc.retAllowCreds; got != want {
+				t.Errorf("Allow-Credentials got: %q, want: %q", got, want)
 			}
 
 			if got, want := rec.Header().Get("Vary"), tc.retVary; got != want {
