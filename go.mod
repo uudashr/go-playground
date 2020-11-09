@@ -1,6 +1,6 @@
 module github.com/uudashr/go-playground
 
-go 1.14
+go 1.5
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -9,4 +9,5 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
+	go.uber.org/dig v1.10.0
 )
