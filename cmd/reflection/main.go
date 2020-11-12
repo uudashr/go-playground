@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	doMarshal()
+	doDump()
 }
 
 func doMarshal() {
@@ -71,11 +71,11 @@ func doSimpleValue() {
 }
 
 func doDump() {
-	v := LoginForm{
-		Email:    "john.appleseed@gmail.com",
-		Password: "secret",
-		valid:    true,
-	}
+	// v := LoginForm{
+	// 	Email:    "john.appleseed@gmail.com",
+	// 	Password: "secret",
+	// 	valid:    true,
+	// }
 
 	// v := &LoginForm{
 	// 	Email:    "john.appleseed@gmail.com",
@@ -89,6 +89,10 @@ func doDump() {
 
 	// var v io.Writer
 	// v = &bytes.Buffer{}
+
+	v := func(event EmailVerified) {
+
+	}
 
 	dump(v)
 }
@@ -111,7 +115,18 @@ func dump(i interface{}) {
 			fmt.Printf("%6s- Tag: %q\n", " ", field.Tag)
 			fmt.Printf("%6s- PkgPath: %q\n", " ", field.PkgPath)
 			fmt.Printf("%6s- Anonymous: %t\n", " ", field.Anonymous)
+		}
+	case reflect.Func:
+		fmt.Printf("%2s- NumIn: %d\n", " ", t.NumIn())
+		for i := 0; i < t.NumIn(); i++ {
+			it := t.In(i)
+			fmt.Printf("%4s- %q\n", " ", it)
+		}
 
+		fmt.Printf("%2s- NumOut: %d\n", " ", t.NumOut())
+		for i := 0; i < t.NumOut(); i++ {
+			it := t.Out(i)
+			fmt.Printf("%4s- %q\n", " ", it)
 		}
 	}
 }
@@ -126,4 +141,8 @@ type LoginForm struct {
 type User struct {
 	Name  string
 	Email string
+}
+
+type EmailVerified struct {
+	UserID string
 }
