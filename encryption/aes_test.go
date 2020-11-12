@@ -1,4 +1,4 @@
-package playground_test
+package encryption_test
 
 import (
 	"crypto/aes"
