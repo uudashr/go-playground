@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +10,7 @@ import (
 )
 
 func main() {
-	doDump()
+	doInspect()
 }
 
 func doMarshal() {
@@ -70,7 +71,7 @@ func doSimpleValue() {
 	fmt.Printf("Value: %q\n", v)
 }
 
-func doDump() {
+func doInspect() {
 	// v := LoginForm{
 	// 	Email:    "john.appleseed@gmail.com",
 	// 	Password: "secret",
@@ -90,14 +91,18 @@ func doDump() {
 	// var v io.Writer
 	// v = &bytes.Buffer{}
 
-	v := func(event EmailVerified) {
+	// v := func(event EmailVerified) (int, error) {
+	// 	return 0, nil
+	// }
+
+	v := func(ctx context.Context) {
 
 	}
 
-	dump(v)
+	inspect(v)
 }
 
-func dump(i interface{}) {
+func inspect(i interface{}) {
 	t := reflect.TypeOf(i)
 
 	fmt.Printf("- Type: %q\n", t)
@@ -120,15 +125,25 @@ func dump(i interface{}) {
 		fmt.Printf("%2s- NumIn: %d\n", " ", t.NumIn())
 		for i := 0; i < t.NumIn(); i++ {
 			it := t.In(i)
-			fmt.Printf("%4s- %q\n", " ", it)
+			fmt.Printf("%4s- %s\n", " ", it)
+			fmt.Printf("%6s- Name: %q\n", " ", it.Name())
+			fmt.Printf("%6s- Kind: %q\n", " ", it.Kind())
+			fmt.Printf("%6s- IsContext: %t\n", " ", typeIsContext(it))
 		}
 
 		fmt.Printf("%2s- NumOut: %d\n", " ", t.NumOut())
 		for i := 0; i < t.NumOut(); i++ {
 			it := t.Out(i)
-			fmt.Printf("%4s- %q\n", " ", it)
+			fmt.Printf("%4s- %s\n", " ", it)
+			fmt.Printf("%6s- Name: %q\n", " ", it.Name())
+			fmt.Printf("%6s- Kind: %q\n", " ", it.Kind())
 		}
 	}
+}
+
+func typeIsContext(t reflect.Type) bool {
+	// TypeOf trick found at https://groups.google.com/forum/#!topic/golang-nuts/qgJy_H2GysY
+	return t.Implements(reflect.TypeOf((*context.Context)(nil)).Elem())
 }
 
 type LoginForm struct {
