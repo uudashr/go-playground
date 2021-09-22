@@ -9,6 +9,7 @@ import (
 )
 
 func TestSigning(t *testing.T) {
+	// or use jwt.StandardClaims instead of jwt.MapClaims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  "1234567890",
 		"name": "John Doe",
@@ -22,19 +23,23 @@ func TestSigning(t *testing.T) {
 		t.Fatal("Fail to sign:", err)
 	}
 
-	token, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	// or use jwt.ParseWithClaims() if want to decode to supplied claims struct
+	parsedToken, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return secretKey, nil
 	})
-
 	if err != nil {
 		t.Fatal("Parse fail:", err)
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		t.Fatal("Invalid claim type")
+	}
+
+	if !parsedToken.Valid {
 		t.Fatal("Invalid token")
 	}
 
