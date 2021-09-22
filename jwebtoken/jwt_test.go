@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 )
 
 func TestSigning(t *testing.T) {
@@ -22,13 +22,16 @@ func TestSigning(t *testing.T) {
 		t.Fatal("Fail to sign:", err)
 	}
 
-	jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-
 		return secretKey, nil
 	})
+
+	if err != nil {
+		t.Fatal("Parse fail:", err)
+	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
