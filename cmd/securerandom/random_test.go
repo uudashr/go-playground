@@ -14,9 +14,10 @@ func TestRandom(t *testing.T) {
 		panic(err)
 	}
 
+	// or use hex.EncodeToString()
 	encoded := base64.URLEncoding.EncodeToString(b)
 
-	// decode
+	// decode, also can use hex.DecodeString()
 	decoded, err := base64.URLEncoding.DecodeString(encoded)
 	if err != nil {
 		t.Fatal("Decode fail:", err)
