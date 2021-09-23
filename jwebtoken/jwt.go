@@ -14,9 +14,11 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// ref: https://hasura.io/blog/best-practices-of-using-jwt-with-graphql
+
 type SecureClaim struct {
 	jwt.StandardClaims
-	UserFingerprint string `json:"aud,omitempty"`
+	UserFingerprint string `json:"fgp,omitempty"`
 }
 
 func Authorize(issuer, secret string, w http.ResponseWriter) error {
