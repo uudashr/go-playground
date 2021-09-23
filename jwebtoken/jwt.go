@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -18,13 +19,14 @@ type SecureClaim struct {
 	UserFingerprint string `json:"aud,omitempty"`
 }
 
-func Login(issuer string, w http.ResponseWriter) error {
+func Authorize(issuer, secret string, w http.ResponseWriter) error {
 	b := make([]byte, 10)
 	_, err := rand.Read(b)
 	if err != nil {
 		return err
 	}
 
+	// Create user fingerprint as extra security
 	userFingerprint := hex.EncodeToString(b)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "__Secure-Fgp",
@@ -46,7 +48,7 @@ func Login(issuer string, w http.ResponseWriter) error {
 		},
 		UserFingerprint: userFingerprintHash,
 	})
-	secretKey := []byte("secret")
+	secretKey := []byte(secret)
 	signedToken, err := token.SignedString(secretKey)
 	if err != nil {
 		return err
@@ -58,15 +60,28 @@ func Login(issuer string, w http.ResponseWriter) error {
 	})
 }
 
-func Validate(r *http.Request) error {
+func Validate(secret string, r *http.Request) error {
+	// Get access token
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return errors.New("no authorization header")
+	}
+
+	authSegments := strings.SplitN(authHeader, " ", 2)
+	if len(authSegments) < 2 {
+		return errors.New("invalid authorization header")
+	}
+
+	if authSegments[0] != "Bearer" {
+		return errors.New("invalid authentication scheme")
+	}
+
+	tokenString := authSegments[1]
+
+	// Get user fingerprint
 	cookie, err := r.Cookie("__Secure-Fgp")
 	if err != nil {
 		return err
-	}
-
-	tokenString := r.Header.Get("Access-Token")
-	if tokenString == "" {
-		return errors.New("no token found")
 	}
 
 	userFingerprint := cookie.Value
@@ -75,13 +90,14 @@ func Validate(r *http.Request) error {
 	userFingerprintDigest := digest.Sum([]byte(userFingerprint))
 	userFingerprintHash := hex.EncodeToString(userFingerprintDigest)
 
+	// Validate both token and user fingerprint
 	var claim SecureClaim
 	_, err = jwt.ParseWithClaims(tokenString, &claim, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method %v", token.Header["alg"])
 		}
 
-		return []byte("secret"), nil
+		return []byte(secret), nil
 	})
 	if err != nil {
 		return err
