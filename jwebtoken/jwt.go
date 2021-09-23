@@ -18,7 +18,7 @@ import (
 
 type SecureClaim struct {
 	jwt.StandardClaims
-	UserFingerprint string `json:"fgp,omitempty"`
+	UserFingerprint string `json:"userFingerprint,omitempty"`
 }
 
 func Authorize(issuer, secret string, w http.ResponseWriter) error {
