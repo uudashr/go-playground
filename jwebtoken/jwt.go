@@ -15,6 +15,7 @@ import (
 )
 
 // ref: https://hasura.io/blog/best-practices-of-using-jwt-with-graphql
+//      https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html
 
 type SecureClaim struct {
 	jwt.StandardClaims
