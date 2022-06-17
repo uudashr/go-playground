@@ -40,3 +40,5 @@ jobs:
         run: go mod download
       - name: Run test
         run: go test ./...
+      - name: Show changes
+        run: git status
