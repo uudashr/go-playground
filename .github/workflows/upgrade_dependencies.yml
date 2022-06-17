@@ -38,6 +38,8 @@ jobs:
           cache: true
       - name: Download dependencies
         run: go mod download
+      - name: Upgrade dependencies
+        run: go get -u -t ./...
       - name: Run test
         run: go test ./...
       - name: Show changes
