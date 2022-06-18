@@ -38,7 +38,12 @@ jobs:
         run: go get -u -t ./...
       - name: Run test
         run: go test ./...
-      - name: Show changes
+      - name: Show changes status
         run: git status
-      #  && git add go.mod go.sum && git -c "user.name=Nuruddin Ashr" -c "user.email=uudashr@gmail.com" commit -m "Upgrade changes"
+      - name: Add changes and commit
+        run: git add go.mod go.sum
+      - name: Commit changes
+        run: git -c "user.name=Nuruddin Ashr" -c "user.email=uudashr@gmail.com" commit -m "Upgrade dependencies"
+      - name: Show changes status
+        run: git status
       
