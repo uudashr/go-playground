@@ -46,4 +46,6 @@ jobs:
         run: git -c "user.name=Nuruddin Ashr" -c "user.email=uudashr@gmail.com" commit -m "Upgrade dependencies"
       - name: Show changes status
         run: git status
+      - name: Push changes
+        run: git push
       
