@@ -4,22 +4,22 @@ go 1.17
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/felixge/httpsnoop v1.0.2 // indirect
+	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/go-chi/cors v1.2.0
+	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
-	github.com/rs/xid v1.3.0
+	github.com/rs/xid v1.4.0
 	github.com/stretchr/testify v1.7.0 // indirect
-	go.uber.org/dig v1.13.0
+	go.uber.org/dig v1.14.1
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/tools v0.1.8
+	golang.org/x/tools v0.1.11
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
 require (
-	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/sys v0.0.0-20211214234402-4825e8c3871d // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
+	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 )
