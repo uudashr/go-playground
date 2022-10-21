@@ -61,6 +61,40 @@ func TestScope_sameStructKey(t *testing.T) {
 	}
 }
 
+func TestScope_override(t *testing.T) {
+	key := &scope{}
+
+	ctx1 := context.Background()
+	ctx2 := context.WithValue(ctx1, key, "Hello")
+	ctx3 := context.WithValue(ctx2, key, "World")
+
+	// ctx1
+	_, ok := ctx1.Value(key).(string)
+	if ok {
+		t.Fatal("expect no value on ctx1")
+	}
+
+	// ctx2
+	v2, ok := ctx2.Value(key).(string)
+	if !ok {
+		t.Fatal("expect value on ctx2")
+	}
+
+	if got, want := v2, "Hello"; got != want {
+		t.Errorf("v2 got: %q, want: %q", got, want)
+	}
+
+	// ctx3
+	v3, ok := ctx3.Value(key).(string)
+	if !ok {
+		t.Fatal("expect value on ctx3")
+	}
+
+	if got, want := v3, "World"; got != want {
+		t.Errorf("v3 got: %q, want: %q", got, want)
+	}
+}
+
 type scope struct {
 	id string
 }
