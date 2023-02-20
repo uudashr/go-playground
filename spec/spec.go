@@ -19,6 +19,12 @@ func OfFunc[T any](f func(T) bool) Spec[T] {
 	return Func[T](f)
 }
 
+func Not[T any](s Spec[T]) Spec[T] {
+	return Func[T](func(v T) bool {
+		return !s.SatisfiedBy(v)
+	})
+}
+
 func And[T any](s1, s2 Spec[T]) Spec[T] {
 	return Func[T](func(v T) bool {
 		return s1.SatisfiedBy(v) && s2.SatisfiedBy(v)
@@ -37,10 +43,4 @@ func Or[T any](s1, s2 Spec[T]) Spec[T] {
 
 func OrNot[T any](s1, s2 Spec[T]) Spec[T] {
 	return Or(s1, Not(s2))
-}
-
-func Not[T any](s Spec[T]) Spec[T] {
-	return Func[T](func(v T) bool {
-		return !s.SatisfiedBy(v)
-	})
 }
