@@ -15,6 +15,10 @@ func (f Func[T]) SatisfiedBy(v T) bool {
 	return f(v)
 }
 
+func OfFunc[T any](f func(T) bool) Spec[T] {
+	return Func[T](f)
+}
+
 func And[T any](s1, s2 Spec[T]) Spec[T] {
 	return Func[T](func(v T) bool {
 		return s1.SatisfiedBy(v) && s2.SatisfiedBy(v)
