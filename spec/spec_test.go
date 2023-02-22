@@ -22,11 +22,11 @@ func ExampleSpec() {
 
 func TestSpec(t *testing.T) {
 
-	boolTrue := spec.OfFunc(func(v any) bool {
+	boolTrue := spec.OfFunc(func(v int) bool {
 		return true
 	})
 
-	boolFalse := spec.OfFunc(func(v any) bool {
+	boolFalse := spec.OfFunc(func(v int) bool {
 		return false
 	})
 
