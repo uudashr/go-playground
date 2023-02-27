@@ -7,17 +7,45 @@ import (
 	"github.com/uudashr/go-playground/injection"
 )
 
+type Runner interface {
+	Run()
+}
+
+type Human struct {
+	Name string
+}
+
+func (h *Human) Run() {
+	fmt.Printf("%q running", h.Name)
+}
+
 func ExampleRegistry() {
 	reg := injection.NewRegistry()
 
 	reg.ProvideVal("John", "name")
 	reg.ProvideVal("Hello", "greeting")
+	reg.Provide(func(name string) Runner {
+		return &Human{Name: name}
+	}, "runner", "name")
 
 	reg.InjectFunc(func(name, greeting string) {
-		fmt.Printf("%s %s", greeting, name)
+		fmt.Printf("%s %s\n", greeting, name)
 	}, "name", "greeting")
 
-	// Output: Hello John
+	rval, err := reg.Resolve("runner")
+	if err != nil {
+		panic(err)
+	}
+
+	rval.(Runner).Run()
+
+	reg.Inject(func(h *Human) {
+		fmt.Printf("%q running\n", h.Name)
+	})
+
+	// Output:
+	// Hello John
+	// "John" running
 }
 
 func TestResolve(t *testing.T) {

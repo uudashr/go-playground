@@ -9,12 +9,16 @@ import (
 type Label string
 
 type Registry struct {
-	valueProviders map[Label]valueProviders
+	labeledProvides     map[Label]valueProviders        // by label
+	inferValueProviders map[reflect.Type]valueProviders // by returned value types
+	inferOuts           map[reflect.Type]valueProviders // by returned interface types
 }
 
 func NewRegistry() *Registry {
 	return &Registry{
-		valueProviders: make(map[Label]valueProviders),
+		labeledProvides:     make(map[Label]valueProviders),
+		inferValueProviders: make(map[reflect.Type]valueProviders),
+		inferOuts:           make(map[reflect.Type]valueProviders),
 	}
 }
 
@@ -29,7 +33,7 @@ func (r *Registry) Provide(v any, label Label, argLabels ...Label) error {
 }
 
 func (r *Registry) ProvideVal(v any, label Label) {
-	r.valueProviders[label] = &staticValue{val: v}
+	r.labeledProvides[label] = &staticValue{val: v}
 }
 
 func (r *Registry) ProvideFunc(fn any, label Label, argLabels ...Label) error {
@@ -42,16 +46,42 @@ func (r *Registry) ProvideFunc(fn any, label Label, argLabels ...Label) error {
 		return fmt.Errorf("ProvideFunc expecting %d labels, got %d", rt.NumIn(), len(argLabels))
 	}
 
-	r.valueProviders[label] = &funcValue{
+	if rt.NumOut() != 1 {
+		return fmt.Errorf("ProvideFunc expecting 1 return value, got %d", rt.NumOut())
+	}
+
+	// capture by label
+	r.labeledProvides[label] = &funcValue{
 		fn:        fn,
 		argLabels: argLabels,
+	}
+
+	ot := rt.Out(0)
+	switch ot.Kind() {
+	case reflect.Pointer:
+		if ot.Elem().Kind() == reflect.Struct {
+			r.inferValueProviders[ot] = &funcValue{
+				fn:        fn,
+				argLabels: argLabels,
+			}
+		}
+	case reflect.Struct:
+		r.inferValueProviders[ot] = &funcValue{
+			fn:        fn,
+			argLabels: argLabels,
+		}
+	case reflect.Interface:
+		r.inferOuts[ot] = &funcValue{
+			fn:        fn,
+			argLabels: argLabels,
+		}
 	}
 
 	return nil
 }
 
 func (r *Registry) Resolve(label Label) (any, error) {
-	p := r.valueProviders[label]
+	p := r.labeledProvides[label]
 	if p == nil {
 		return nil, fmt.Errorf("no value provided for label %s", label)
 	}
@@ -148,6 +178,8 @@ func (gv *funcValue) provideValue(r Resolver) (any, error) {
 
 		argVals[i] = reflect.ValueOf(v)
 	}
+
+	// TODO: should not called multiple times
 	return rv.Call(argVals)[0].Interface(), nil
 
 }
