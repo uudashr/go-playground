@@ -8,7 +8,7 @@ import (
 
 func TestOptional(t *testing.T) {
 	s := "Hello"
-	opt := optional.Ok(s)
+	opt := optional.ValueOf(s)
 	value, ok := opt.Get()
 	if !ok {
 		t.Fatalf("expected ok")
@@ -24,5 +24,11 @@ func TestOptional(t *testing.T) {
 
 	if got, want := opt.Default("Holla"), "Hello"; got != want {
 		t.Errorf("got %q, want %q", got, want)
+	}
+
+	if x, ok := opt.Get(); ok {
+		if got, want := x, s; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
 	}
 }
