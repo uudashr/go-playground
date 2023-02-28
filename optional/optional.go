@@ -5,7 +5,7 @@ type Value[T any] struct {
 	ok    bool
 }
 
-func Ok[T any](value T) Value[T] {
+func ValueOf[T any](value T) Value[T] {
 	return Value[T]{value: value, ok: true}
 }
 
