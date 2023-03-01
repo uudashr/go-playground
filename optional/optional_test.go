@@ -7,28 +7,47 @@ import (
 )
 
 func TestOptional(t *testing.T) {
-	s := "Hello"
-	opt := optional.ValueOf(s)
-	value, ok := opt.Get()
-	if !ok {
-		t.Fatalf("expected ok")
+	testCases := map[string]struct {
+		val        any
+		optVal     optional.Value[string]
+		defaultIn  string
+		defaultOut string
+		empty      bool
+	}{
+		"simple value": {
+			val:        "Hello",
+			optVal:     optional.ValueOf("Hello"),
+			defaultIn:  "World",
+			defaultOut: "Hello",
+		},
+		"empty value": {
+			val:        "",
+			empty:      true,
+			defaultIn:  "World",
+			defaultOut: "World",
+		},
 	}
 
-	if got, want := value, s; got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			optVal := tc.optVal
+			if got, want := optVal.Empty(), tc.empty; got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
 
-	if got, want := opt.Empty(), false; got != want {
-		t.Errorf("got %v, want %v", got, want)
-	}
+			defaultVal := optVal.Default("World")
+			if got, want := defaultVal, tc.defaultOut; got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
 
-	if got, want := opt.Default("Holla"), "Hello"; got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
+			val, ok := optVal.Get()
+			if got, want := ok, !tc.empty; got != want {
+				t.Fatalf("got %v, want %v", got, want)
+			}
 
-	if x, ok := opt.Get(); ok {
-		if got, want := x, s; got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+			if got, want := val, tc.val; got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
+		})
 	}
 }
