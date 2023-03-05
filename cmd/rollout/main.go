@@ -18,7 +18,7 @@ func main() {
 
 	rolloutPercentage := 80
 	rolloutRatio := float32(rolloutPercentage) / 100
-	totalSegments := 100000
+	totalSegments := 100000 // maybe we should use math.MaxUint32
 	segmentLimit := float32(totalSegments) * rolloutRatio
 
 	fmt.Println("Total segments", totalSegments)
