@@ -8,6 +8,8 @@ import (
 )
 
 // ref: https://docs.launchdarkly.com/home/flags/rollouts
+// flipt: https://github.com/flipt-io/flipt/blob/6ded9f8ee4bec234fe6a8960da4e534b249db5df/internal/server/evaluator.go
+// flagd: https://github.com/open-feature/flagd/blob/34aca79e6ec9876a6cced0fe49e1ceea34d83696/pkg/eval/fractional_evaluation.go
 
 func main() {
 	// 1 2 3 4 5 6 7 8 9 10
