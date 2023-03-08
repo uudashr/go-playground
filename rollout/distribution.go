@@ -2,7 +2,6 @@ package rollout
 
 import (
 	"errors"
-	"hash/fnv"
 )
 
 var segmentSize = 100000
@@ -43,16 +42,4 @@ func distributionIndex(segmentIndex int, distributionRatios []float32) (int, err
 	}
 
 	return len(distributionRatios) - 1, nil
-}
-
-func distributionIndexString(s string, distributionRatios []float32) (int, error) {
-	h := fnv.New32()
-	if _, err := h.Write([]byte(s)); err != nil {
-		return -1, err
-	}
-
-	sum := h.Sum32()
-	mod := sum % uint32(segmentSize)
-
-	return distributionIndex(int(mod), distributionRatios)
 }

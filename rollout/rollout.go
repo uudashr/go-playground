@@ -15,3 +15,15 @@ func ShouldRollout(id string, ratio float32) (bool, error) {
 
 	return true, nil
 }
+
+func DistributionIndex(id string, ratios []float32) (int, error) {
+	h := fnv.New32()
+	if _, err := h.Write([]byte(id)); err != nil {
+		return -1, err
+	}
+
+	sum := h.Sum32()
+	mod := sum % uint32(segmentSize)
+
+	return distributionIndex(int(mod), ratios)
+}
