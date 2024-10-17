@@ -15,6 +15,8 @@ require (
 )
 
 require (
+	github.com/cbroglie/mustache v1.4.0
+	github.com/google/go-cmp v0.5.8
 	github.com/graphql-go/graphql v0.8.1
 	github.com/ringsaturn/tzf v0.16.0
 	github.com/ringsaturn/tzf-rel v0.0.2024-b

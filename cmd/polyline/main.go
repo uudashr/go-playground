@@ -6,7 +6,20 @@ import (
 	"github.com/twpayne/go-polyline"
 )
 
-func main() {
+func runDecode() error {
+	originalEncoded := "qeymAgpbyMGRUx@IXIXi@bD[hBe@zAQ`@{CtFU\\i@l@q@f@i@Z_@Po@Je@NSVIBS\\[x@[t@i@pAKV_@x@INIVGNw@pBEJKZELu@|CCHk@hCMj@AFMb@Qh@{AjDyAjDc@lASl@c@dBEPEVK^CNJBH@|Bb@VqAuBY"
+	coords, _, err := polyline.DecodeCoords([]byte(originalEncoded))
+	if err != nil {
+		return err
+	}
+
+	encoded := polyline.EncodeCoords(coords)
+
+	fmt.Println("Matched:", originalEncoded == string(encoded))
+	return nil
+}
+
+func runConcat() {
 	fmt.Println("--- Original ---")
 	coords := [][]float64{
 		{38.5, -120.2},
@@ -43,4 +56,8 @@ func main() {
 
 	fmt.Println("--- Comparison ---")
 	fmt.Println("Matched:", poly == mergedPoly)
+}
+
+func main() {
+	runConcat()
 }
