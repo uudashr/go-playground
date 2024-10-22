@@ -18,6 +18,7 @@ require (
 	github.com/cbroglie/mustache v1.4.0
 	github.com/google/go-cmp v0.5.8
 	github.com/graphql-go/graphql v0.8.1
+	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v0.16.0
 	github.com/ringsaturn/tzf-rel v0.0.2024-b
 	github.com/stretchr/testify v1.9.0
@@ -26,7 +27,9 @@ require (
 
 require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/ovechkin-dm/go-dyno v0.3.2 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
+	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
 	github.com/ringsaturn/tzf-rel-lite v0.0.2024-b // indirect
 	github.com/tidwall/geoindex v1.7.0 // indirect
 	github.com/tidwall/geojson v1.4.5 // indirect
