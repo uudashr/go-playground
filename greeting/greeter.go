@@ -5,6 +5,6 @@ type Greeter interface {
 }
 
 func Greet(g Greeter, name string) string {
-	return "Hello, " + name + "!"
-	// return g.Greet(name)
+	// return "Hello, " + name + "!"
+	return g.Greet(name)
 }
