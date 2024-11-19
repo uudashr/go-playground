@@ -11,16 +11,17 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.5.0
 	go.uber.org/dig v1.16.0
-	golang.org/x/tools v0.19.0
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d
 )
 
 require (
 	github.com/cbroglie/mustache v1.4.0
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v0.16.0
 	github.com/ringsaturn/tzf-rel v0.0.2024-b
+	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -36,6 +37,7 @@ require (
 	github.com/tidwall/rtree v1.10.0 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	golang.org/x/exp v0.0.0-20240314144324-c7f7c6466f7f // indirect
+	golang.org/x/sync v0.9.0 // indirect
 )
 
 require (
@@ -44,6 +46,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twpayne/go-polyline v1.1.1
 	golang.org/x/crypto v0.22.0
-	golang.org/x/mod v0.16.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/text v0.20.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
