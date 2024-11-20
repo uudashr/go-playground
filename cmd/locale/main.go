@@ -7,6 +7,8 @@ import (
 	"golang.org/x/text/message"
 )
 
+// ref: https://pkg.go.dev/golang.org/x/text
+
 func main() {
 	discount := 0.257
 
