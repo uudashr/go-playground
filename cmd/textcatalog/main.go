@@ -10,9 +10,7 @@ import (
 )
 
 func main() {
-
 	runNumbers()
-
 }
 
 func runNumbers() {
