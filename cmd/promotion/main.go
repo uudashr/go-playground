@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -23,6 +25,8 @@ func main() {
 	formatEn := currency.ISO.Default(enUnit).Kind(currency.Accounting)
 	enp.Printf("%v fixed amount\n", formatEn(fixed))
 
+	fmt.Println("----------------")
+
 	// Print in id-ID locale and language
 	// Output: Diskon 25% diterapkan
 	// Output: IDR 20 jumlah tetap
@@ -34,6 +38,8 @@ func main() {
 	formatId := currency.ISO.Default(idUnit).Kind(currency.Accounting)
 	idp.Printf("%v jumlah tetap\n", formatId(fixed))
 
+	fmt.Println("----------------")
+
 	// Print in ar-AE locale and language
 	// Output: تم تطبيق خصم 26%
 	// Output: AED 20.35 المبلغ الثابت
@@ -44,5 +50,4 @@ func main() {
 	arUnit, _ := currency.ParseISO("AED")
 	formatAr := currency.ISO.Default(arUnit).Kind(currency.Accounting)
 	arp.Printf("%v المبلغ الثابت\n", formatAr(fixed))
-
 }
