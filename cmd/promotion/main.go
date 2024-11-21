@@ -14,53 +14,53 @@ func main() {
 	discount := 0.257457
 	fixed := 20.3456
 
-	// Print in us-US locale and language
+	// Print in en-US locale and language
 	// Output: 26% discount applied
 	// Output: USD 20.35 fixed amount
-	us, _ := language.Parse("en-US")
-	usp := message.NewPrinter(us)
-	usp.Printf("Discount %v applied\n", number.Percent(discount))
+	usLang := language.MustParse("en-US")
+	usPrinter := message.NewPrinter(usLang)
+	usPrinter.Printf("Discount %v applied\n", number.Percent(discount))
 
-	enUnit, _ := currency.ParseISO("USD")
-	formatEn := currency.ISO.Default(enUnit).Kind(currency.Accounting)
-	usp.Printf("%v fixed amount\n", formatEn(fixed))
+	usUnit := currency.MustParseISO("USD")
+	formatEn := currency.ISO.Default(usUnit).Kind(currency.Accounting)
+	usPrinter.Printf("%v fixed amount\n", formatEn(fixed))
 
 	fmt.Println("----------------")
 
 	// Print in id-ID locale and language
 	// Output: Diskon 25% diterapkan
 	// Output: IDR 20 jumlah tetap
-	id, _ := language.Parse("id-ID")
-	idp := message.NewPrinter(id)
-	idp.Printf("Diskon %v diterapkan\n", number.Percent(discount))
+	idLang := language.MustParse("id-ID")
+	idPrinter := message.NewPrinter(idLang)
+	idPrinter.Printf("Diskon %v diterapkan\n", number.Percent(discount))
 
-	idUnit, _ := currency.ParseISO("IDR")
+	idUnit := currency.MustParseISO("IDR")
 	formatId := currency.ISO.Default(idUnit).Kind(currency.Accounting)
-	idp.Printf("%v jumlah tetap\n", formatId(fixed))
+	idPrinter.Printf("%v jumlah tetap\n", formatId(fixed))
 
 	fmt.Println("----------------")
 
-	// Print in ae-AE locale and language
+	// Print in ar-AE locale and language
 	// Output: تم تطبيق خصم 26%
 	// Output: AED 20.35 المبلغ الثابت
-	ae, _ := language.Parse("ar-AE")
-	aep := message.NewPrinter(ae)
-	aep.Printf("تم تطبيق خصم %v\n", number.Percent(discount))
+	aeLang := language.MustParse("ar-AE")
+	aePrinter := message.NewPrinter(aeLang)
+	aePrinter.Printf("تم تطبيق خصم %v\n", number.Percent(discount))
 
-	arUnit, _ := currency.ParseISO("AED")
-	formatAr := currency.ISO.Default(arUnit).Kind(currency.Accounting)
-	aep.Printf("%v المبلغ الثابت\n", formatAr(fixed))
+	aeUnit := currency.MustParseISO("AED")
+	formatAr := currency.ISO.Default(aeUnit).Kind(currency.Accounting)
+	aePrinter.Printf("%v المبلغ الثابت\n", formatAr(fixed))
 
 	fmt.Println("----------------")
 
 	// Print in ar-JO locale and language
 	// Output: تم تطبيق خصم 26%
 	// Output: JOD 20.35 المبلغ الثابت
-	jo, _ := language.Parse("ar-JO")
-	jop := message.NewPrinter(jo)
-	jop.Printf("تم تطبيق خصم %v\n", number.Percent(discount))
+	joLang := language.MustParse("ar-JO")
+	joPrinter := message.NewPrinter(joLang)
+	joPrinter.Printf("تم تطبيق خصم %v\n", number.Percent(discount))
 
-	joUnit, _ := currency.ParseISO("JOD")
+	joUnit := currency.MustParseISO("JOD")
 	formatJo := currency.ISO.Default(joUnit).Kind(currency.Accounting)
-	jop.Printf("%v المبلغ الثابت\n", formatJo(fixed))
+	joPrinter.Printf("%v المبلغ الثابت\n", formatJo(fixed))
 }
