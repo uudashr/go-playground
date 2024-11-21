@@ -34,6 +34,7 @@ func main() {
 
 func printVal(t language.Tag, vals values, namer display.Namer) {
 	fmt.Printf("== Lang: %s (%s) ===\n", t, namer.Name(t))
+
 	p := message.NewPrinter(t)
 	p.Printf("Decimal: %v\n", number.Decimal(vals.Decimal))
 	p.Printf("Percent: %v\n", number.Percent(vals.Percent))
