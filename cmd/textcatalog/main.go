@@ -14,7 +14,7 @@ func main() {
 }
 
 func runNumbers() {
-	for _, lang := range []string{"en", "de", "de-CH", "fr", "bn"} {
+	for _, lang := range []string{"en", "de", "de-CH", "fr", "bn", "ar-JO", "id-ID", "ar-AE", "ar-EG", "ar-BH"} {
 		p := message.NewPrinter(language.Make(lang))
 		p.Printf("%-6s %g\n", lang, 123456.78)
 	}
@@ -37,7 +37,7 @@ func runSubstitutions() {
 	}
 }
 
-func runSimple() {
+func runSelector() {
 	cat := catalog.NewBuilder()
 	cat.Set(language.English, "You are %d minute(s) late.",
 		plural.Selectf(1, "",
@@ -45,5 +45,29 @@ func runSimple() {
 			plural.Other, "You are %d minutes late."))
 
 	p := message.NewPrinter(language.English, message.Catalog(cat))
-	p.Printf("You are %d minute(s) late.\n", 1)
+	p.Printf("You are %d minute(s) late", 1)
+	fmt.Println()
+}
+
+func runSelectorInterpolation() {
+	cat := catalog.NewBuilder()
+	cat.Set(language.English, "You are %d minute(s) late.",
+		catalog.Var("minutes",
+			plural.Selectf(1, "", plural.One, "minute", plural.Other, "minutes")),
+		catalog.String("You are %[1]d ${minutes} late."))
+
+	p := message.NewPrinter(language.English, message.Catalog(cat))
+	p.Printf("You are %d minute(s) late.", 1)
+	fmt.Println()
+}
+
+func runSelectorInterpolationSimplified() {
+	cat := catalog.NewBuilder()
+	cat.Set(language.English, "You are %d minute(s) late.",
+		catalog.Var("minutes", plural.Selectf(1, "", plural.One, "minute")),
+		catalog.String("You are %d ${minutes} late."))
+
+	p := message.NewPrinter(language.English, message.Catalog(cat))
+	p.Printf("You are %d minute(s) late.", 2)
+	fmt.Println()
 }
