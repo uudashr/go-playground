@@ -11,7 +11,7 @@ func main() {
 
 	fmt.Println("Val:", val)
 	fmt.Println("=======================")
-	currencyCodes := []string{"USD", "AED", "JOD", "BHD", "EGP", "PKR", "IDR", "THB", "EUR"}
+	currencyCodes := []string{"USD", "AED", "IQD", "JOD", "BHD", "EGP", "PKR", "IDR", "THB", "EUR"}
 	for _, code := range currencyCodes {
 		unit := currency.MustParseISO(code)
 		printVal(unit, val)
