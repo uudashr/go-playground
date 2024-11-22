@@ -27,6 +27,9 @@ require (
 )
 
 require (
+	github.com/davidbanham/human_duration v1.4.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ovechkin-dm/go-dyno v0.3.2 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
