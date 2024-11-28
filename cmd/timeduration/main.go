@@ -16,16 +16,20 @@ func main() {
 	expiryTime := now.Add(2 * time.Hour).Add(30 * time.Minute).Add(10 * time.Second)
 
 	expiryDuration := expiryTime.Sub(now)
+	fmt.Println("== Simple Duration Format ==")
 	fmt.Println("It will expire in the next", expiryDuration)
 
+	fmt.Println("== Humanize Duration Format ==")
 	// https://pkg.go.dev/github.com/dustin/go-humanize
 	fmt.Println("It will expire in the next", humanize.Time(expiryTime))
 	fmt.Println("It will expire in", humanize.RelTime(expiryTime, now, "earlier", "later"))
 
+	fmt.Println("== Human Duration Format ==")
 	// https://github.com/davidbanham/human_duration
 	fmt.Println("It will expire in the next", human_duration.String(expiryDuration, "second"))
 	fmt.Println("It will expire in the next", human_duration.String(expiryDuration, "minute"))
 
+	fmt.Println("== Durafmt Duration Format ==")
 	// https://github.com/hako/durafmt
 	dfmt := durafmt.Parse(expiryDuration)
 	fmt.Println("It will expire in the next", dfmt)
