@@ -54,5 +54,4 @@ func main() {
 	}
 
 	fmt.Println("ستنتهي في", dfmt.Format(arabicUnit)) // note: this not print the numbers in Arabic scripture
-
 }
