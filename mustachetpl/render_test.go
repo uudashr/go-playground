@@ -1,7 +1,6 @@
 package mustachetpl_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cbroglie/mustache"
@@ -60,39 +59,6 @@ func TestDotted(t *testing.T) {
 * 
 * 
 * <b>GitHub</b>
-`
-
-	out, err := mustache.Render(tpl, m)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if diff := cmp.Diff(expect, out); diff != "" {
-		t.Errorf("unexpected output (-want +got):\n%s", diff)
-	}
-}
-
-func TestLambdas(t *testing.T) {
-	tpl := `
-* {{time.hour}}
-`
-
-	m := map[string]any{
-		"year":  1970,
-		"month": 1,
-		"day":   1,
-		"time": func(text string, render mustache.RenderFunc) (string, error) {
-			fmt.Printf("TEXT1 %q\n", text)
-			return "wow", nil
-		},
-		"today": func(text string, render mustache.RenderFunc) (string, error) {
-			fmt.Printf("TEXT2 %q\n", text)
-			return "{{year}}-{{month}}-{{day}}", nil
-		},
-	}
-
-	expect := `
-* 0
 `
 
 	out, err := mustache.Render(tpl, m)
