@@ -24,23 +24,32 @@ require (
 	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v0.16.0
 	github.com/ringsaturn/tzf-rel v0.0.2024-b
+	github.com/rs/zerolog v1.33.0
+	github.com/samber/slog-zerolog v1.0.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.10.0
+	go.uber.org/zap v1.27.0
+	go.uber.org/zap/exp v0.3.0
 	google.golang.org/protobuf v1.36.1
 )
 
 require (
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ovechkin-dm/go-dyno v0.3.2 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
 	github.com/ringsaturn/tzf-rel-lite v0.0.2024-b // indirect
+	github.com/samber/lo v1.38.1 // indirect
 	github.com/tidwall/geoindex v1.7.0 // indirect
 	github.com/tidwall/geojson v1.4.5 // indirect
 	github.com/tidwall/rtree v1.10.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.1 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
 	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 )
 
 require (
