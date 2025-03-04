@@ -12,7 +12,7 @@ type Config struct {
 	Prefix string
 }
 
-func ExampleDig() {
+func ExampleContainer() {
 	c := dig.New()
 
 	err := c.Provide(func() (*Config, error) {
