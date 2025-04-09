@@ -17,10 +17,12 @@ require (
 )
 
 require (
+	github.com/biter777/countries v1.7.5
 	github.com/cbroglie/mustache v1.4.0
 	github.com/davidbanham/human_duration v1.4.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-co-op/gocron/v2 v2.16.0
+	github.com/go-playground/tz v0.0.1
 	github.com/google/go-cmp v0.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
