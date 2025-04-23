@@ -23,6 +23,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-co-op/gocron/v2 v2.16.0
 	github.com/go-playground/tz v0.0.1
+	github.com/go-viper/mapstructure/v2 v2.2.1
 	github.com/google/go-cmp v0.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
