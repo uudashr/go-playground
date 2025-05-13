@@ -6,18 +6,21 @@ import (
 
 func main() {
 	options := []string{"credit-card", "cash", "wallet"}
-	fmt.Println(options)
+	fmt.Println("options:", options, len(options), cap(options))
 	filtered := filterPaymentTypes(options)
-	fmt.Println(options)
-	fmt.Println(filtered)
+	fmt.Println("options:", options, len(options), cap(options))
+	fmt.Println("filtered:", filtered, len(filtered), cap(filtered))
 }
 
 func filterPaymentTypes(opts []string) []string {
+	var out []string
 	for i := 0; i < len(opts); i++ {
 		if string(opts[i]) == "cash" {
-			opts = append(opts[:i], opts[i+1:]...)
+			out = append(opts[:i], opts[i+1:]...)
+			// out = slices.Delete(opts, i, i+1)
 			break
 		}
 	}
-	return opts
+	fmt.Println("out:", out, len(out), cap(out))
+	return out
 }
