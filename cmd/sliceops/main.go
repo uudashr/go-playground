@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	reduceSlice()
+	reduceSliceOut()
 
 	// Questions:
 	// What if the capacity is higher than the length
@@ -41,6 +41,38 @@ func reduceSlice() {
 	// - Might not ok, if we found that slice is not passed to function as argment. Because there are possibilities for the caller expect the argument for not mutated
 	// - The address of the append result is different from the original if we use declaration assigment
 	// - Any attempt to slice modification will affect the slice source of the assignment
+}
+
+func reduceSliceOut() {
+	// Declaring a slice
+	numbers := []int{10, 20, 30, 40, 50, 90, 60}
+	fmt.Println("Original slice:", numbers, len(numbers), cap(numbers))
+	fmt.Printf("Original slice address: %p\n", &numbers)
+
+	var index int = 3
+
+	// Get the element at the provided index in the slice
+	elem := numbers[index]
+
+	// Using append function to combine two slices
+	// first slice is the slice of all the elements before the given index
+	// second slice is the slice of all the elements after the given index
+	// append function appends the second slice to the end of the first slice
+	// returning a slice, so we store it in the form of a slice
+	out := append(numbers[:index], numbers[index+1:]...)
+
+	out[0] = 100
+
+	fmt.Println("Original slice after deleting elements:", numbers, len(numbers), cap(numbers))
+	fmt.Printf("Original slice address: %p\n", &numbers)
+	fmt.Printf("The element %d at index %d was deleted.\n", elem, index)
+	fmt.Println("Slice output:", out, len(out), cap(out))
+	fmt.Printf("Slice output address: %p\n", &out)
+
+	// Observation:
+	// - Original slice elemets is mutated, but the length is not changed
+	// - It might give false perception if we use using the out and leave the original slice,
+	//    include if the slice is taken from function arg because they will be mutated
 }
 
 func addSlice() {

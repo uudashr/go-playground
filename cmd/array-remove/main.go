@@ -10,6 +10,10 @@ func main() {
 	filtered := filterPaymentTypes(options)
 	fmt.Println("options:", options, len(options), cap(options))
 	fmt.Println("filtered:", filtered, len(filtered), cap(filtered))
+
+	// Observation:
+	// - the options length is remain the same, but the values are changed
+	// - filtered and out has smaller length, but it has same capacity just like options
 }
 
 func filterPaymentTypes(opts []string) []string {
@@ -21,6 +25,7 @@ func filterPaymentTypes(opts []string) []string {
 			break
 		}
 	}
+	fmt.Println("opts:", opts, len(opts), cap(opts))
 	fmt.Println("out:", out, len(out), cap(out))
 	return out
 }
