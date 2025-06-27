@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.6.0
 	go.uber.org/dig v1.16.0
-	golang.org/x/tools v0.30.0
+	golang.org/x/tools v0.33.0
 )
 
 require (
@@ -61,8 +61,8 @@ require (
 	github.com/tidwall/rtree v1.10.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
 )
 
 require (
@@ -71,7 +71,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twpayne/go-polyline v1.1.1
 	golang.org/x/crypto v0.35.0
-	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/text v0.22.0
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/text v0.26.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
