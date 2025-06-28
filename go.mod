@@ -27,6 +27,7 @@ require (
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hamba/avro/v2 v2.28.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/open-feature/go-sdk v1.15.1
 	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v0.17.2
 	github.com/ringsaturn/tzf-rel v0.0.2025-a
@@ -40,6 +41,7 @@ require (
 )
 
 require (
+	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -60,6 +62,7 @@ require (
 	github.com/tidwall/geojson v1.4.5 // indirect
 	github.com/tidwall/rtree v1.10.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.3 // indirect
+	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
