@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.6.0
 	go.uber.org/dig v1.16.0
-	golang.org/x/tools v0.33.0
+	golang.org/x/tools v0.34.0
 )
 
 require (
@@ -19,25 +19,25 @@ require (
 	github.com/cbroglie/mustache v1.4.0
 	github.com/davidbanham/human_duration v1.4.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-co-op/gocron/v2 v2.16.0
+	github.com/go-co-op/gocron/v2 v2.16.2
 	github.com/go-playground/tz v0.0.1
-	github.com/go-viper/mapstructure/v2 v2.2.1
+	github.com/go-viper/mapstructure/v2 v2.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
-	github.com/hamba/avro/v2 v2.28.0
+	github.com/hamba/avro/v2 v2.29.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/open-feature/go-sdk v1.15.1
 	github.com/ovechkin-dm/mockio v1.0.1
-	github.com/ringsaturn/tzf v0.17.2
-	github.com/ringsaturn/tzf-rel v0.0.2025-a
-	github.com/rs/zerolog v1.33.0
+	github.com/ringsaturn/tzf v1.0.0
+	github.com/ringsaturn/tzf-rel v0.0.2025-b
+	github.com/rs/zerolog v1.34.0
 	github.com/samber/slog-zerolog v1.0.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.3.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -54,14 +54,14 @@ require (
 	github.com/ovechkin-dm/go-dyno v0.3.2 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
-	github.com/ringsaturn/tzf-rel-lite v0.0.2025-a // indirect
+	github.com/ringsaturn/tzf-rel-lite v0.0.2025-b // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
-	github.com/samber/lo v1.49.1 // indirect
+	github.com/samber/lo v1.51.0 // indirect
 	github.com/tidwall/geoindex v1.7.0 // indirect
 	github.com/tidwall/geojson v1.4.5 // indirect
 	github.com/tidwall/rtree v1.10.0 // indirect
-	go.mongodb.org/mongo-driver v1.17.3 // indirect
+	go.mongodb.org/mongo-driver v1.17.4 // indirect
 	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
@@ -73,7 +73,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twpayne/go-polyline v1.1.1
-	golang.org/x/crypto v0.35.0
+	golang.org/x/crypto v0.39.0
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/text v0.26.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
