@@ -1,33 +1,46 @@
 package featureflag
 
-var defaultFlagger = &Flagger{}
+var Noop = &NoopFlagger{}
 
-func SetDefaultFlagger(flagger *Flagger) {
-	// TODO implement concurrency-safe logic
+var defaultFlagger Flagger = Noop
+
+func SetDefaultFlagger(flagger Flagger) {
 	defaultFlagger = flagger
 }
 
-type Flagger struct {
+func DefaultFlagger() Flagger {
+	if defaultFlagger == nil {
+		return Noop
+	}
+
+	return defaultFlagger
 }
 
-func (f *Flagger) Bool(name string, defaultValue bool) bool {
-	// TODO implement feature flag logic
+type NoopFlagger struct {
+}
+
+func (nf *NoopFlagger) Bool(name string, defaultValue bool) bool {
 	return defaultValue
 }
 
-func (s *Flagger) String(name string, defaultValue string) string {
-	// TODO implement feature flag logic
+func (nf *NoopFlagger) String(name string, defaultValue string) string {
+	return defaultValue
+}
+
+func (nf *NoopFlagger) Int(name string, defaultValue int) int {
 	return defaultValue
 }
 
 func Bool(name string, defaultValue bool) bool {
-	// TODO implement concurrency-safe logic
 	return defaultFlagger.Bool(name, defaultValue)
 }
 
 func String(name string, defaultValue string) string {
-	// TODO implement concurrency-safe logic
 	return defaultFlagger.String(name, defaultValue)
+}
+
+func Int(name string, defaultValue int) int {
+	return defaultFlagger.Int(name, defaultValue)
 }
 
 func StringWithOverride(name string, defaultValue string, override StringEvaluator) string {
@@ -46,10 +59,28 @@ func BoolWithOverride(name string, defaultValue bool, override BoolEvaluator) bo
 	return Bool(name, defaultValue)
 }
 
+func IntWithOverride(name string, defaultValue int, override IntEvaluator) int {
+	if override != nil {
+		return override.Int(name, defaultValue)
+	}
+
+	return Int(name, defaultValue)
+}
+
+type Flagger interface {
+	StringEvaluator
+	BoolEvaluator
+	IntEvaluator
+}
+
 type StringEvaluator interface {
 	String(name string, defaultValue string) string
 }
 
 type BoolEvaluator interface {
 	Bool(name string, defaultValue bool) bool
+}
+
+type IntEvaluator interface {
+	Int(name string, defaultValue int) int
 }
