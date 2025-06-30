@@ -1,6 +1,6 @@
 module github.com/uudashr/go-playground
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
