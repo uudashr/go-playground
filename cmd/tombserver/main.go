@@ -72,21 +72,25 @@ func (s *service) httpServer(ctx context.Context) error {
 	logger = logger.With("component", "http")
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reqCtx := r.Context()
 		latency := r.Header.Get("X-Latency")
 		if latency != "" {
 			duration, err := time.ParseDuration(latency)
 			if err != nil {
-				logger.ErrorContext(ctx, "Invalid latency header", "error", err)
+				logger.ErrorContext(reqCtx, "Invalid latency header", "error", err)
 				http.Error(w, "Invalid latency header", http.StatusBadRequest)
 				return
 			}
 
-			logger.InfoContext(ctx, "Simulating latency", "duration", duration)
-			time.Sleep(duration)
-			logger.InfoContext(ctx, "Latency simulation complete")
+			logger.InfoContext(reqCtx, "Simulating latency", "duration", duration)
+			select {
+			case <-time.After(duration):
+				logger.InfoContext(reqCtx, "Latency simulation complete")
+				w.Write([]byte("Hello, World!"))
+			case <-reqCtx.Done():
+				logger.WarnContext(reqCtx, "Request context cancelled during latency simulation", "error", reqCtx.Err())
+			}
 		}
-
-		w.Write([]byte("Hello, World!"))
 	})
 
 	server := &http.Server{
