@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -42,6 +43,7 @@ func (s *service) run() error {
 	})
 
 	t.Go(func() error {
+		// TODO should pass the ctx for baseContext, then might need to signal context
 		return s.httpServer(ctx)
 	})
 
@@ -96,6 +98,9 @@ func (s *service) httpServer(ctx context.Context) error {
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: handler,
+		BaseContext: func(net.Listener) context.Context {
+			return ctx
+		},
 	}
 
 	errCh := make(chan error, 1)
