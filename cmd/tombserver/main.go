@@ -43,7 +43,6 @@ func (s *service) run() error {
 	})
 
 	t.Go(func() error {
-		// TODO should pass the ctx for baseContext, then might need to signal context
 		return s.httpServer(ctx)
 	})
 
