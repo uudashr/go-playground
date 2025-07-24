@@ -1,0 +1,99 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"time"
+)
+
+func requestLogAttrs(r *http.Request) []any {
+	attrs := []any{
+		"method", r.Method,
+		"url", r.URL.String(),
+	}
+
+	if val := r.Header.Get("Connection"); val != "" {
+		attrs = append(attrs, "connection", val)
+	}
+
+	return attrs
+}
+
+type httpHandler struct {
+	logger *slog.Logger
+}
+
+func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	logger := h.logger
+
+	logAttrs := requestLogAttrs(r)
+	logger.InfoContext(ctx, "HTTP request received", logAttrs...)
+
+	err := h.delay(r)
+	if errors.Is(err, context.Canceled) {
+		if err := context.Cause(ctx); errors.Is(err, errTerminated) {
+			logger.InfoContext(ctx, "Delay canceled due to termination", "error", err)
+			http.Error(w, "Server is shutting down", http.StatusServiceUnavailable)
+			return
+		}
+
+		logger.WarnContext(ctx, "Request canceled", "error", err)
+		return
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		logger.WarnContext(ctx, "Failed to delay due to deadline", "error", err, "cause", context.Cause(ctx))
+		http.Error(w, "Request deadline exceeded", http.StatusGatewayTimeout)
+		return
+	}
+
+	if err != nil {
+		logger.ErrorContext(ctx, "Failed to delay request", "error", err)
+		http.Error(w, "Failed to delay request", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Hello"))
+}
+
+func (h *httpHandler) delay(r *http.Request) error {
+	ctx := r.Context()
+	logger := h.logger
+
+	if val := r.URL.Query().Get("delay"); val != "" {
+		d, err := time.ParseDuration(val)
+		if err != nil {
+			return &invalidDelayError{val: val, cause: err}
+		}
+
+		logger.InfoContext(ctx, "Delaying response", "duration", d)
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(d):
+			logger.InfoContext(ctx, "Delay completed, sending response")
+		}
+	}
+
+	return nil
+}
+
+type invalidDelayError struct {
+	val   string
+	cause error
+}
+
+func (e *invalidDelayError) Error() string {
+	return fmt.Sprintf("invalid delay parameter %q", e.val)
+}
+
+func (e *invalidDelayError) Unwrap() error {
+	return e.cause
+}
