@@ -116,7 +116,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 		}
 	}()
 
-	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr)
+	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls)
 
 	if svc.tls {
 		if err := svr.ListenAndServeTLS("certs/cert.pem", "certs/key.pem"); err != http.ErrServerClosed {

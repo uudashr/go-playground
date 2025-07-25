@@ -9,15 +9,18 @@ import (
 func main() {
 	var (
 		countDown int
+		tls       bool
 	)
 
 	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown.")
+	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server.")
 	flag.Parse()
 
 	logger := newLogger()
 	svc := &service{
 		logger:    logger,
 		countDown: countDown,
+		tls:       tls,
 	}
 
 	if err := svc.run(); err != nil && err != errTerminated {
