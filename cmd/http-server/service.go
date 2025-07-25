@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// errTerminated is for clean termination.
+// errTerminated used for clean termination.
 var errTerminated = errors.New("termination")
 
 type service struct {
