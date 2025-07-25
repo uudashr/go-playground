@@ -17,13 +17,13 @@ import (
 )
 
 func runMain() error {
-
 	var (
 		count      int
 		baseURL    string
 		serverName string
 		cert       string
 		delay      time.Duration
+		delayType  delayBehavior
 		concurrent bool
 		h2c        bool
 	)
@@ -34,6 +34,7 @@ func runMain() error {
 	flag.StringVar(&cert, "cert", "", "Path to CA certificate for TLS verification (leave empty to skip verification)")
 	flag.BoolVar(&concurrent, "concurrent", false, "Send requests concurrently")
 	flag.DurationVar(&delay, "delay", 0, "Delaying response (e.g., 1s, 500ms)")
+	flag.TextVar(&delayType, "delay-type", delayBehaviorConstant, "Type of delay (constant, increasing, decreasing)")
 	flag.BoolVar(&h2c, "h2c", false, "Enable HTTP/2 support over cleartext (h2c)")
 
 	flag.Parse()
@@ -50,9 +51,10 @@ func runMain() error {
 	}
 
 	ha := &httpAgent{
-		baseURL: baseURL,
-		client:  client,
-		delay:   delay,
+		baseURL:        baseURL,
+		client:         client,
+		delay:          delay,
+		calculateDelay: delayCalculatorOf(delayType),
 	}
 
 	if concurrent {
@@ -60,6 +62,19 @@ func runMain() error {
 	}
 
 	return sendSequentially(ha, count)
+}
+
+func delayCalculatorOf(b delayBehavior) delayCalculatorFunc {
+	switch b {
+	case delayBehaviorConstant:
+		return constantDelay
+	case delayBehaviorIncreasing:
+		return increasingDelay
+	case delayBehaviorDecreasing:
+		return decreasingDelay
+	default:
+		return constantDelay
+	}
 }
 
 func sendConcurrently(ha *httpAgent, count int) error {
@@ -150,9 +165,10 @@ func newHTTPClient(cfg clientConfig) (*http.Client, error) {
 }
 
 type httpAgent struct {
-	baseURL string
-	client  *http.Client
-	delay   time.Duration
+	baseURL        string
+	client         *http.Client
+	delay          time.Duration
+	calculateDelay delayCalculatorFunc
 }
 
 func (ha *httpAgent) sendRequest(i int) error {
@@ -164,11 +180,11 @@ func (ha *httpAgent) sendRequest(i int) error {
 	}
 
 	if ha.delay > 0 {
-		d := time.Duration(int64(ha.delay) / int64(num))
+		d := ha.calculateDelay(ha.delay, num)
 		assignDelay(req, d)
 	}
 
-	fmt.Printf("==> Send req-%03d %s\n", num, req.URL.String())
+	fmt.Printf("Send req-%03d ==> %s\n", num, req.URL.String())
 	res, err := ha.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("http error: %w", err)
@@ -176,18 +192,16 @@ func (ha *httpAgent) sendRequest(i int) error {
 
 	defer res.Body.Close()
 
-	fmt.Printf("==== Response req-%03d ==============\n", num)
-	fmt.Printf("Status -> %d %s\n", res.StatusCode, res.Status)
-	fmt.Printf("Proto -> %s\n", res.Proto)
-
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("read body error: %w", err)
 	}
 
-	fmt.Printf("---- Body req-%03d ------------------\n", num)
-	fmt.Println(string(b))
-	fmt.Println("____________________________________")
+	fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Body: %s\n",
+		num,
+		res.StatusCode, res.Status,
+		res.Proto,
+		string(b))
 
 	return nil
 }
@@ -206,6 +220,24 @@ type clientConfig struct {
 
 	// h2c enable HTTP/2 support over cleartext (h2c)
 	h2c bool
+}
+
+type delayCalculatorFunc func(delay time.Duration, num int) time.Duration
+
+func constantDelay(delay time.Duration, _ int) time.Duration {
+	return delay
+}
+
+func increasingDelay(delay time.Duration, num int) time.Duration {
+	return time.Duration(int64(delay) * int64(num))
+}
+
+func decreasingDelay(delay time.Duration, num int) time.Duration {
+	if num <= 0 {
+		return 0
+	}
+
+	return time.Duration(int64(delay) / int64(num))
 }
 
 func main() {
