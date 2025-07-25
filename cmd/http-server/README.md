@@ -32,6 +32,16 @@ or the HTTP/2 Over Cleartext (h2c) protocol:
 curl -v --http2-prior-knowledge http://localhost:8080/hello
 ```
 
+## Run nginx
+
+```shell
+podman run --rm -it --name nginx \
+  -p 8443:8443 \
+  -v $(pwd)/conf/nginx.conf:/etc/nginx/nginx.conf:ro \
+  -v $(pwd)/certs:/etc/nginx/certs:ro \
+  nginx:1.29.0-alpine
+```
+
 ## References
 
 - [How HTTP/2 Works and How to Enable It in Go](https://victoriametrics.com/blog/go-http2/)
