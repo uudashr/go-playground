@@ -21,6 +21,7 @@ var errTerminated = errors.New("termination")
 type service struct {
 	logger    *slog.Logger
 	countDown int
+	tls       bool
 }
 
 func (svc *service) run() error {
@@ -84,7 +85,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 	h := newHTTPHandler(logger)
 
 	svr := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":443",
 		Handler: h,
 		BaseContext: func(net.Listener) context.Context {
 			logger.DebugContext(ctx, "HTTP server base context created")
@@ -116,9 +117,17 @@ func (svc *service) httpServer(ctx context.Context) error {
 	}()
 
 	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr)
-	if err := svr.ListenAndServe(); err != http.ErrServerClosed {
-		logger.WarnContext(ctx, "HTTP server fail", "error", err)
-		return err
+
+	if svc.tls {
+		if err := svr.ListenAndServeTLS("certs/cert.pem", "certs/key.pem"); err != http.ErrServerClosed {
+			logger.WarnContext(ctx, "HTTP server fail", "error", err)
+			return err
+		}
+	} else {
+		if err := svr.ListenAndServe(); err != http.ErrServerClosed {
+			logger.WarnContext(ctx, "HTTP server fail", "error", err)
+			return err
+		}
 	}
 
 	logger.InfoContext(ctx, "HTTP server stopped")
