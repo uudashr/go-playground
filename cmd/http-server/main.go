@@ -10,17 +10,21 @@ func main() {
 	var (
 		countDown int
 		tls       bool
+		http2     bool
 	)
 
 	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown")
-	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server (:443 otherwise :8080)")
+	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server (:8443 otherwise :8080)")
+	flag.BoolVar(&http2, "http2", false, "Enable HTTP/2 support")
 	flag.Parse()
 
 	logger := newLogger()
+
 	svc := &service{
 		logger:    logger,
 		countDown: countDown,
 		tls:       tls,
+		http2:     http2,
 	}
 
 	if err := svc.run(); err != nil && err != errTerminated {

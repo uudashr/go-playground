@@ -137,15 +137,15 @@ func (ha *httpAgent) sendRequest(i int) error {
 	defer res.Body.Close()
 
 	fmt.Printf("==== Response req-%03d ==============\n", num)
-	fmt.Printf("Status %d %s\n", res.StatusCode, res.Status)
-	fmt.Printf("Proto %s\n", res.Proto)
+	fmt.Printf("Status -> %d %s\n", res.StatusCode, res.Status)
+	fmt.Printf("Proto -> %s\n", res.Proto)
 
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("read body error: %w", err)
 	}
 
-	fmt.Printf("---- Body req-%03d -------------------\n", num)
+	fmt.Printf("---- Body req-%03d ------------------\n", num)
 	fmt.Println(string(b))
 	fmt.Println("____________________________________")
 
