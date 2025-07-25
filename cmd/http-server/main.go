@@ -10,12 +10,12 @@ func main() {
 	var (
 		countDown int
 		tls       bool
-		http2     bool
+		h2c       bool
 	)
 
 	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown")
 	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server (:8443 otherwise :8080)")
-	flag.BoolVar(&http2, "http2", false, "Enable HTTP/2 support")
+	flag.BoolVar(&h2c, "h2c", false, "Enable HTTP/2 support over cleartext (h2c)")
 	flag.Parse()
 
 	logger := newLogger()
@@ -24,7 +24,7 @@ func main() {
 		logger:    logger,
 		countDown: countDown,
 		tls:       tls,
-		http2:     http2,
+		h2c:       h2c,
 	}
 
 	if err := svc.run(); err != nil && err != errTerminated {

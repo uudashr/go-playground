@@ -22,7 +22,7 @@ type service struct {
 	logger    *slog.Logger
 	countDown int
 	tls       bool
-	http2     bool
+	h2c       bool
 }
 
 func (svc *service) run() error {
@@ -108,8 +108,8 @@ func (svc *service) httpServer(ctx context.Context) error {
 		},
 	}
 
-	if svc.http2 {
-		svc.configureHTTP2(svr)
+	if svc.h2c {
+		svc.configureH2C(svr)
 	}
 
 	go func() {
@@ -128,7 +128,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 		}
 	}()
 
-	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls, "http2", svc.http2)
+	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls, "h2c", svc.h2c)
 
 	if svc.tls {
 		if err := svr.ListenAndServeTLS("certs/cert.pem", "certs/key.pem"); err != http.ErrServerClosed {
@@ -147,14 +147,12 @@ func (svc *service) httpServer(ctx context.Context) error {
 	return errTerminated
 }
 
-func (svc *service) configureHTTP2(svr *http.Server) {
+func (svc *service) configureH2C(svr *http.Server) {
 	if !svc.tls {
 		p := new(http.Protocols)
-		p.SetUnencryptedHTTP2(true)
+		p.SetUnencryptedHTTP2(true) // Enable unencrypted HTTP/2
+		p.SetHTTP1(true)            // Ensure HTTP/1 is also supported
 		svr.Protocols = p
 		return
 	}
-
-	// NOTE seems that http2.Server is not needed for the default HTTP/2 support in Go's net/http package
-	// http2.ConfigureServer(svr, &http2.Server{})
 }
