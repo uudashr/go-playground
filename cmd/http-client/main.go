@@ -1,15 +1,19 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"sync"
 	"time"
+
+	"golang.org/x/net/http2"
 )
 
 func runMain() error {
@@ -21,6 +25,7 @@ func runMain() error {
 		cert       string
 		delay      time.Duration
 		concurrent bool
+		h2c        bool
 	)
 
 	flag.IntVar(&count, "count", 1, "Number of requests to send")
@@ -29,9 +34,17 @@ func runMain() error {
 	flag.StringVar(&cert, "cert", "", "Path to CA certificate for TLS verification (leave empty to skip verification)")
 	flag.BoolVar(&concurrent, "concurrent", false, "Send requests concurrently")
 	flag.DurationVar(&delay, "delay", 0, "Delaying response (e.g., 1s, 500ms)")
+	flag.BoolVar(&h2c, "h2c", false, "Enable HTTP/2 support over cleartext (h2c)")
+
 	flag.Parse()
 
-	client, err := newHTTPClient(clientConfig{cert: cert, serverName: serverName})
+	cfg := clientConfig{
+		cert:       cert,
+		serverName: serverName,
+		h2c:        h2c,
+	}
+
+	client, err := newHTTPClient(cfg)
 	if err != nil {
 		return fmt.Errorf("failed to create HTTP client: %w", err)
 	}
@@ -78,8 +91,35 @@ func sendSequentially(ha *httpAgent, count int) error {
 	return nil
 }
 
+func newPriorKnowledgeClient() *http.Client {
+	transport := &http2.Transport{
+		// Allow HTTP/2 over plaintext connections
+		AllowHTTP: true,
+		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+			// Return a regular TCP connection instead of TLS
+			return nil, fmt.Errorf("use DialTLSContext")
+		},
+		DialTLSContext: func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
+			// This is a bit of a hack - we're using the TLS dial but without actual TLS
+			d := &net.Dialer{}
+			return d.DialContext(ctx, network, addr)
+		},
+	}
+
+	return &http.Client{
+		Transport: transport,
+	}
+}
+
 func newHTTPClient(cfg clientConfig) (*http.Client, error) {
 	if cfg.cert == "" {
+		// Insecure mode, skip TLS verification
+
+		if cfg.h2c {
+			// Enable HTTP/2 support over cleartext
+			return newPriorKnowledgeClient(), nil
+		}
+
 		return &http.Client{}, nil
 	}
 
@@ -159,8 +199,13 @@ func assignDelay(r *http.Request, d time.Duration) {
 }
 
 type clientConfig struct {
+	// The cert used for TLS verification CA certificate. Non empty value means
+	// TLS verification is enabled.
 	cert       string
 	serverName string
+
+	// h2c enable HTTP/2 support over cleartext (h2c)
+	h2c bool
 }
 
 func main() {
