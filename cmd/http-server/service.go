@@ -15,7 +15,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var errTerminated = errors.New("termination signal received")
+// errTerminated is for clean termination.
+var errTerminated = errors.New("termination")
 
 type service struct {
 	logger    *slog.Logger
@@ -70,12 +71,11 @@ func (svc *service) signalListener(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
 		logger.InfoContext(ctx, "Receive done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
+		return ctx.Err()
 	case sig := <-ch:
 		logger.InfoContext(ctx, "Received termination signal", "signal", sig)
 		return errTerminated
 	}
-
-	return nil
 }
 
 func (svc *service) httpServer(ctx context.Context) error {
@@ -100,8 +100,12 @@ func (svc *service) httpServer(ctx context.Context) error {
 	}
 
 	go func() {
-		<-ctx.Done()
-		logger.InfoContext(ctx, "Receive done signal, shutting down HTTP server...", "error", ctx.Err(), "cause", context.Cause(ctx))
+		select {
+		case <-h.shutdown:
+			logger.InfoContext(ctx, "HTTP server shutdown signal received")
+		case <-ctx.Done():
+			logger.InfoContext(ctx, "Receive done signal, shutting down HTTP server...", "error", ctx.Err(), "cause", context.Cause(ctx))
+		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -119,5 +123,5 @@ func (svc *service) httpServer(ctx context.Context) error {
 
 	logger.InfoContext(ctx, "HTTP server stopped")
 
-	return nil
+	return errTerminated
 }

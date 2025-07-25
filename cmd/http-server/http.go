@@ -25,13 +25,15 @@ func requestLogAttrs(r *http.Request) []any {
 }
 
 type httpHandler struct {
-	logger *slog.Logger
-	mux    *http.ServeMux
+	logger   *slog.Logger
+	mux      *http.ServeMux
+	shutdown chan struct{}
 }
 
 func newHTTPHandler(logger *slog.Logger) *httpHandler {
 	h := &httpHandler{
-		logger: logger,
+		logger:   logger,
+		shutdown: make(chan struct{}),
 	}
 	h.initialize()
 
@@ -50,7 +52,11 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *httpHandler) shutdownHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	logger := h.logger
 
+	logger.InfoContext(ctx, "Shutdown request received")
+	close(h.shutdown)
 }
 
 func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -138,15 +144,11 @@ func connIDFromContext(ctx context.Context) string {
 }
 
 type connIDLogHandler struct {
-	next slog.Handler
+	slog.Handler
 }
 
 func logConnID(next slog.Handler) slog.Handler {
-	return &connIDLogHandler{next: next}
-}
-
-func (h *connIDLogHandler) Enabled(ctx context.Context, l slog.Level) bool {
-	return h.next.Enabled(ctx, l)
+	return &connIDLogHandler{Handler: next}
 }
 
 func (h *connIDLogHandler) Handle(ctx context.Context, r slog.Record) error {
@@ -154,17 +156,13 @@ func (h *connIDLogHandler) Handle(ctx context.Context, r slog.Record) error {
 		r.Add(slog.String("connID", connID))
 	}
 
-	return h.next.Handle(ctx, r)
+	return h.Handler.Handle(ctx, r)
 }
 
 func (h *connIDLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &connIDLogHandler{
-		next: h.next.WithAttrs(attrs),
-	}
+	return logConnID(h.Handler.WithAttrs(attrs))
 }
 
 func (h *connIDLogHandler) WithGroup(name string) slog.Handler {
-	return &connIDLogHandler{
-		next: h.next.WithGroup(name),
-	}
+	return logConnID(h.Handler.WithGroup(name))
 }
