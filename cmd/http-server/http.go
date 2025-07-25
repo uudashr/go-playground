@@ -24,9 +24,34 @@ func requestLogAttrs(r *http.Request) []any {
 
 type httpHandler struct {
 	logger *slog.Logger
+	mux    *http.ServeMux
+}
+
+func newHTTPHandler(logger *slog.Logger) *httpHandler {
+	h := &httpHandler{
+		logger: logger,
+	}
+	h.initialize()
+
+	return h
+}
+
+func (h *httpHandler) initialize() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /shutdown", h.shutdownHandler)
+	mux.HandleFunc("/", h.defaultHandler)
+	h.mux = mux
 }
 
 func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.mux.ServeHTTP(w, r)
+}
+
+func (h *httpHandler) shutdownHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	logger := h.logger
 

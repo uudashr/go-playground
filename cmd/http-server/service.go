@@ -17,7 +17,8 @@ import (
 var errTerminated = errors.New("termination signal received")
 
 type service struct {
-	logger *slog.Logger
+	logger    *slog.Logger
+	countDown int
 }
 
 func (svc *service) run() error {
@@ -37,6 +38,23 @@ func (svc *service) run() error {
 	t.Go(func() error {
 		return svc.httpServer(ctx)
 	})
+
+	if svc.countDown > 0 {
+		t.Go(func() error {
+			logger := svc.logger.With("component", "countdown")
+
+			for i := 10; i >= 0; i-- {
+				select {
+				case <-ctx.Done():
+					return nil
+				case <-time.After(1 * time.Second):
+					logger.InfoContext(ctx, "Counting down", "step", i)
+				}
+			}
+
+			return errors.New("explode error")
+		})
+	}
 
 	return t.Wait()
 }
@@ -64,9 +82,11 @@ func (svc *service) signalListener(ctx context.Context, cancel context.CancelCau
 func (svc *service) httpServer(ctx context.Context) error {
 	logger := svc.logger.With("component", "http-server")
 
-	h := &httpHandler{
-		logger: logger,
-	}
+	// h := &httpHandler{
+	// 	logger: logger,
+	// }
+
+	h := newHTTPHandler(logger)
 
 	svr := &http.Server{
 		Addr:    ":8080",
