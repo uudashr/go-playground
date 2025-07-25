@@ -16,7 +16,12 @@ openssl req -x509 -newkey rsa:2048 -nodes \
 http --verify=certs/cert.pem https://localhost/hello
 ```
 
-Send request with HTTP/2 support:
+Send request with HTTP/2 support securely:
+```shell
+curl -v --http2 https://localhost:8443/hello --cacert certs/cert.pem
+```
+
+Send request with HTTP/2 support insecurely:
 ```shell
 curl -v --http2 https://localhost:8443/hello --insecure
 ```
