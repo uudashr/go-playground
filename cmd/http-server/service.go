@@ -112,6 +112,14 @@ func (svc *service) httpServer(ctx context.Context) error {
 		svc.configureH2C(svr)
 	}
 
+	// Uncomment the following line to enable custom HTTP/2 server configuration
+	// if err := http2.ConfigureServer(svr, &http2.Server{
+	// 	MaxConcurrentStreams: 50,
+	// }); err != nil {
+	// 	logger.ErrorContext(ctx, "Failed to configure HTTP/2 server", "error", err)
+	// 	return err
+	// }
+
 	go func() {
 		select {
 		case <-h.shutdown:
