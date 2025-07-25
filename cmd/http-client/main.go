@@ -18,7 +18,7 @@ func runMain() error {
 		count      int
 		baseURL    string
 		serverName string
-		verifyCert string
+		cert       string
 		delay      time.Duration
 		concurrent bool
 	)
@@ -26,12 +26,12 @@ func runMain() error {
 	flag.IntVar(&count, "count", 1, "Number of requests to send")
 	flag.StringVar(&baseURL, "base-url", "http://localhost:8080", "Base URL for the HTTP server")
 	flag.StringVar(&serverName, "server-name", "localhost", "Server name for TLS verification (leave empty to skip)")
-	flag.StringVar(&verifyCert, "verify-cert", "", "Path to CA certificate for TLS verification (leave empty to skip verification)")
+	flag.StringVar(&cert, "cert", "", "Path to CA certificate for TLS verification (leave empty to skip verification)")
 	flag.BoolVar(&concurrent, "concurrent", false, "Send requests concurrently")
 	flag.DurationVar(&delay, "delay", 0, "Delaying response (e.g., 1s, 500ms)")
 	flag.Parse()
 
-	client, err := newHTTPClient(clientConfig{cert: verifyCert, serverName: serverName})
+	client, err := newHTTPClient(clientConfig{cert: cert, serverName: serverName})
 	if err != nil {
 		return fmt.Errorf("failed to create HTTP client: %w", err)
 	}
