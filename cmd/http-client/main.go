@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
+	"time"
 )
 
 func runMain() error {
@@ -17,12 +19,16 @@ func runMain() error {
 		baseURL    string
 		serverName string
 		verifyCert string
+		delay      time.Duration
+		concurrent bool
 	)
 
 	flag.IntVar(&count, "count", 1, "Number of requests to send")
 	flag.StringVar(&baseURL, "base-url", "http://localhost:8080", "Base URL for the HTTP server")
 	flag.StringVar(&serverName, "server-name", "localhost", "Server name for TLS verification (leave empty to skip)")
 	flag.StringVar(&verifyCert, "verify-cert", "", "Path to CA certificate for TLS verification (leave empty to skip verification)")
+	flag.BoolVar(&concurrent, "concurrent", false, "Send requests concurrently")
+	flag.DurationVar(&delay, "delay", 0, "Delaying response (e.g., 1s, 500ms)")
 	flag.Parse()
 
 	client, err := newHTTPClient(clientConfig{cert: verifyCert, serverName: serverName})
@@ -30,10 +36,42 @@ func runMain() error {
 		return fmt.Errorf("failed to create HTTP client: %w", err)
 	}
 
+	ha := &httpAgent{
+		baseURL: baseURL,
+		client:  client,
+		delay:   delay,
+	}
+
+	if concurrent {
+		return sendConcurrently(ha, count)
+	}
+
+	return sendSequentially(ha, count)
+}
+
+func sendConcurrently(ha *httpAgent, count int) error {
+	var wg sync.WaitGroup
+	wg.Add(count)
+
 	for i := range count {
-		fmt.Printf("=== Sending request %d... === \n", i+1)
-		if err := sendRequest(client, baseURL); err != nil {
-			fmt.Printf("Error sending request %d: %v\n", i+1, err)
+		go func(num int) {
+			defer wg.Done()
+			if err := ha.sendRequest(i); err != nil {
+				fmt.Printf("Error sending request req-%d: %v\n", num, err)
+			}
+		}(i + 1)
+	}
+
+	wg.Wait()
+
+	return nil
+}
+
+func sendSequentially(ha *httpAgent, count int) error {
+	for i := range count {
+		iter := i + 1
+		if err := ha.sendRequest(i); err != nil {
+			fmt.Printf("Error sending request req-%0d: %v\n", iter, err)
 		}
 	}
 
@@ -71,31 +109,53 @@ func newHTTPClient(cfg clientConfig) (*http.Client, error) {
 	}, nil
 }
 
-func sendRequest(client *http.Client, baseURL string) error {
-	req, err := http.NewRequest(http.MethodGet, baseURL+"/hello", nil)
+type httpAgent struct {
+	baseURL string
+	client  *http.Client
+	delay   time.Duration
+}
+
+func (ha *httpAgent) sendRequest(i int) error {
+	num := i + 1
+
+	req, err := http.NewRequest(http.MethodGet, ha.baseURL+"/hello", nil)
 	if err != nil {
 		return err
 	}
 
-	req.Close = false
+	if ha.delay > 0 {
+		d := time.Duration(int64(ha.delay) / int64(num))
+		assignDelay(req, d)
+	}
 
-	res, err := client.Do(req)
+	fmt.Printf("==> Send req-%03d %s\n", num, req.URL.String())
+	res, err := ha.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("http error: %w", err)
 	}
 
 	defer res.Body.Close()
 
-	fmt.Printf("Status: %d %s\n", res.StatusCode, res.Status)
+	fmt.Printf("==== Response req-%03d ==============\n", num)
+	fmt.Printf("Status %d %s\n", res.StatusCode, res.Status)
+	fmt.Printf("Proto %s\n", res.Proto)
 
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("read body error: %w", err)
 	}
 
+	fmt.Printf("---- Body req-%03d -------------------\n", num)
 	fmt.Println(string(b))
+	fmt.Println("____________________________________")
 
 	return nil
+}
+
+func assignDelay(r *http.Request, d time.Duration) {
+	vals := r.URL.Query()
+	vals.Set("delay", d.String())
+	r.URL.RawQuery = vals.Encode()
 }
 
 type clientConfig struct {
@@ -104,7 +164,6 @@ type clientConfig struct {
 }
 
 func main() {
-
 	if err := runMain(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -12,8 +12,8 @@ func main() {
 		tls       bool
 	)
 
-	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown.")
-	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server.")
+	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown")
+	flag.BoolVar(&tls, "tls", false, "Enable TLS for the HTTP server")
 	flag.Parse()
 
 	logger := newLogger()

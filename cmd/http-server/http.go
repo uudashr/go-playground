@@ -111,7 +111,7 @@ func (h *httpHandler) delay(r *http.Request) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(d):
-			logger.InfoContext(ctx, "Delay completed, sending response")
+			logger.InfoContext(ctx, "Delay completed, sending response", "duration", d)
 		}
 	}
 

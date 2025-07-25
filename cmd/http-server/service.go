@@ -79,13 +79,20 @@ func (svc *service) signalListener(ctx context.Context) error {
 	}
 }
 
+func (svc *service) httpAddr() string {
+	if svc.tls {
+		return ":443"
+	}
+	return ":8080"
+}
+
 func (svc *service) httpServer(ctx context.Context) error {
 	logger := svc.logger.With("component", "http-server")
 
 	h := newHTTPHandler(logger)
 
 	svr := &http.Server{
-		Addr:    ":443",
+		Addr:    svc.httpAddr(),
 		Handler: h,
 		BaseContext: func(net.Listener) context.Context {
 			logger.DebugContext(ctx, "HTTP server base context created")
