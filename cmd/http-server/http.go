@@ -90,6 +90,10 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if connID := connIDFromContext(ctx); connID != "" {
+		w.Header().Set("X-Connection-ID", connID)
+	}
+
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello"))

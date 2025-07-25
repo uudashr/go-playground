@@ -197,6 +197,17 @@ func (ha *httpAgent) sendRequest(i int) error {
 		return fmt.Errorf("read body error: %w", err)
 	}
 
+	if connID := res.Header.Get("X-Connection-ID"); connID != "" {
+		fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Conn ID: %s, Body: %s\n",
+			num,
+			res.StatusCode, res.Status,
+			res.Proto,
+			connID,
+			string(b))
+
+		return nil
+	}
+
 	fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Body: %s\n",
 		num,
 		res.StatusCode, res.Status,
