@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/moby/moby/pkg/namesgenerator"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -90,6 +91,9 @@ func (svc *service) httpServer(ctx context.Context) error {
 			return ctx
 		},
 		ConnContext: func(ctx context.Context, c net.Conn) context.Context {
+			name := namesgenerator.GetRandomName(0)
+
+			ctx = contextWithConnID(ctx, name)
 			logger.DebugContext(ctx, "HTTP server connection context created", "localAddr", c.LocalAddr())
 			return ctx
 		},

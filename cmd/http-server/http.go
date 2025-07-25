@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+type connectionIDKey struct{}
+
 func requestLogAttrs(r *http.Request) []any {
 	attrs := []any{
 		"method", r.Method,
@@ -121,4 +123,48 @@ func (e *invalidDelayError) Error() string {
 
 func (e *invalidDelayError) Unwrap() error {
 	return e.cause
+}
+
+func contextWithConnID(ctx context.Context, connID string) context.Context {
+	return context.WithValue(ctx, connectionIDKey{}, connID)
+}
+
+func connIDFromContext(ctx context.Context) string {
+	if val, ok := ctx.Value(connectionIDKey{}).(string); ok {
+		return val
+	}
+
+	return ""
+}
+
+type connIDLogHandler struct {
+	next slog.Handler
+}
+
+func logConnID(next slog.Handler) slog.Handler {
+	return &connIDLogHandler{next: next}
+}
+
+func (h *connIDLogHandler) Enabled(ctx context.Context, l slog.Level) bool {
+	return h.next.Enabled(ctx, l)
+}
+
+func (h *connIDLogHandler) Handle(ctx context.Context, r slog.Record) error {
+	if connID := connIDFromContext(ctx); connID != "" {
+		r.Add(slog.String("connID", connID))
+	}
+
+	return h.next.Handle(ctx, r)
+}
+
+func (h *connIDLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &connIDLogHandler{
+		next: h.next.WithAttrs(attrs),
+	}
+}
+
+func (h *connIDLogHandler) WithGroup(name string) slog.Handler {
+	return &connIDLogHandler{
+		next: h.next.WithGroup(name),
+	}
 }

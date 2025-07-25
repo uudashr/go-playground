@@ -28,6 +28,7 @@ require (
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hamba/avro/v2 v2.29.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/moby/moby v28.3.2+incompatible
 	github.com/open-feature/go-sdk v1.15.1
 	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v1.0.0
@@ -38,6 +39,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.3.0
+	golang.org/x/sync v0.16.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
@@ -74,7 +76,6 @@ require (
 	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 )
 
