@@ -157,10 +157,12 @@ func newHTTPClient(cfg clientConfig) (*http.Client, error) {
 		ServerName: cfg.serverName,
 	}
 
+	// derive from DefaultTransport, it has HTTP/2 support by default along with useful configs
+	tp := http.DefaultTransport.(*http.Transport).Clone()
+	tp.TLSClientConfig = tlsConfig
+
 	return &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: tlsConfig,
-		},
+		Transport: tp,
 	}, nil
 }
 
