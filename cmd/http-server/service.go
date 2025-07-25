@@ -41,22 +41,27 @@ func (svc *service) run() error {
 
 	if svc.countDown > 0 {
 		t.Go(func() error {
-			logger := svc.logger.With("component", "countdown")
-
-			for i := 10; i >= 0; i-- {
-				select {
-				case <-ctx.Done():
-					return nil
-				case <-time.After(1 * time.Second):
-					logger.InfoContext(ctx, "Counting down", "step", i)
-				}
-			}
-
-			return errors.New("explode error")
+			return svc.countdownHandler(ctx, svc.countDown)
 		})
 	}
 
 	return t.Wait()
+}
+
+func (svc *service) countdownHandler(ctx context.Context, count int) error {
+	logger := svc.logger.With("component", "countdown")
+
+	logger.InfoContext(ctx, "Starting countdown", "count", count)
+	for i := count; i >= 0; i-- {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(1 * time.Second):
+			logger.InfoContext(ctx, "Counting down", "step", i)
+		}
+	}
+
+	return errors.New("explode error")
 }
 
 func (svc *service) signalListener(ctx context.Context, cancel context.CancelCauseFunc) error {
