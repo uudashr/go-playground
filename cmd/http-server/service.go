@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"gopkg.in/tomb.v2"
+	"golang.org/x/sync/errgroup"
 )
 
 var errTerminated = errors.New("termination signal received")
@@ -22,30 +22,23 @@ type service struct {
 }
 
 func (svc *service) run() error {
-	t, ctx := tomb.WithContext(context.Background())
+	g, ctx := errgroup.WithContext(context.Background())
 
-	ctx, cancel := context.WithCancelCause(ctx)
-	defer cancel(nil)
-
-	t.Go(func() error {
-		if err := svc.signalListener(ctx, cancel); err != nil {
-			return err
-		}
-
-		return nil
+	g.Go(func() error {
+		return svc.signalListener(ctx)
 	})
 
-	t.Go(func() error {
+	g.Go(func() error {
 		return svc.httpServer(ctx)
 	})
 
 	if svc.countDown > 0 {
-		t.Go(func() error {
+		g.Go(func() error {
 			return svc.countdownHandler(ctx, svc.countDown)
 		})
 	}
 
-	return t.Wait()
+	return g.Wait()
 }
 
 func (svc *service) countdownHandler(ctx context.Context, count int) error {
@@ -64,7 +57,7 @@ func (svc *service) countdownHandler(ctx context.Context, count int) error {
 	return errors.New("explode error")
 }
 
-func (svc *service) signalListener(ctx context.Context, cancel context.CancelCauseFunc) error {
+func (svc *service) signalListener(ctx context.Context) error {
 	logger := svc.logger.With("component", "signal-listener")
 
 	ch := make(chan os.Signal, 1)
@@ -78,7 +71,7 @@ func (svc *service) signalListener(ctx context.Context, cancel context.CancelCau
 		logger.InfoContext(ctx, "Receive done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
 	case sig := <-ch:
 		logger.InfoContext(ctx, "Received termination signal", "signal", sig)
-		cancel(errTerminated)
+		return errTerminated
 	}
 
 	return nil
@@ -86,10 +79,6 @@ func (svc *service) signalListener(ctx context.Context, cancel context.CancelCau
 
 func (svc *service) httpServer(ctx context.Context) error {
 	logger := svc.logger.With("component", "http-server")
-
-	// h := &httpHandler{
-	// 	logger: logger,
-	// }
 
 	h := newHTTPHandler(logger)
 

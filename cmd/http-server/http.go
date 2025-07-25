@@ -60,13 +60,13 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := h.delay(r)
 	if errors.Is(err, context.Canceled) {
-		if err := context.Cause(ctx); errors.Is(err, errTerminated) {
-			logger.InfoContext(ctx, "Delay canceled due to termination", "error", err)
-			http.Error(w, "Server is shutting down", http.StatusServiceUnavailable)
+		if err := context.Cause(ctx); errors.Is(err, context.Canceled) {
+			logger.WarnContext(ctx, "Delay canceled due to client disconnection", "error", err)
 			return
 		}
 
-		logger.WarnContext(ctx, "Request canceled", "error", err)
+		logger.InfoContext(ctx, "Delay canceled due to termination", "error", err)
+		http.Error(w, "Server is shutting down", http.StatusServiceUnavailable)
 		return
 	}
 
