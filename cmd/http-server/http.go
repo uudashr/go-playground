@@ -74,20 +74,20 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		logger.InfoContext(ctx, "Delay canceled due to termination", "error", err)
+		logger.WarnContext(ctx, "Delay canceled due to termination", "error", err)
 		http.Error(w, "Server is shutting down", http.StatusServiceUnavailable)
 		return
 	}
 
 	if errors.Is(err, context.DeadlineExceeded) {
-		logger.WarnContext(ctx, "Failed to delay due to deadline", "error", err, "cause", context.Cause(ctx))
+		logger.WarnContext(ctx, "Failed to delay due to exceeded deadline", "error", err, "cause", context.Cause(ctx))
 		http.Error(w, "Request deadline exceeded", http.StatusGatewayTimeout)
 		return
 	}
 
 	if err != nil {
-		logger.ErrorContext(ctx, "Failed to delay request", "error", err)
-		http.Error(w, "Failed to delay request", http.StatusInternalServerError)
+		logger.ErrorContext(ctx, "Failed to handle request", "error", err)
+		http.Error(w, "Failed to handle request", http.StatusInternalServerError)
 		return
 	}
 
