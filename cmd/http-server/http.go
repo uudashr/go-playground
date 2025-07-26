@@ -66,7 +66,7 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	logAttrs := requestLogAttrs(r)
 	logger.InfoContext(ctx, "HTTP request received", logAttrs...)
 
-	err := h.delay(r)
+	err := h.delayReq(r)
 	if errors.Is(err, context.Canceled) {
 		if err := context.Cause(ctx); errors.Is(err, context.Canceled) {
 			logger.WarnContext(ctx, "Delay canceled due to client disconnection", "error", err)
@@ -99,9 +99,8 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello"))
 }
 
-func (h *httpHandler) delay(r *http.Request) error {
+func (h *httpHandler) delayReq(r *http.Request) error {
 	ctx := r.Context()
-	logger := h.logger
 
 	if val := r.URL.Query().Get("delay"); val != "" {
 		d, err := time.ParseDuration(val)
@@ -109,14 +108,22 @@ func (h *httpHandler) delay(r *http.Request) error {
 			return &invalidDelayError{val: val, cause: err}
 		}
 
-		logger.InfoContext(ctx, "Delaying response", "duration", d)
+		h.delay(ctx, d)
+	}
 
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(d):
-			logger.InfoContext(ctx, "Delay completed, sending response", "duration", d)
-		}
+	return nil
+}
+
+func (h *httpHandler) delay(ctx context.Context, d time.Duration) error {
+	logger := h.logger
+
+	logger.InfoContext(ctx, "Delaying response", "duration", d)
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(d):
+		logger.InfoContext(ctx, "Delay completed, sending response", "duration", d)
 	}
 
 	return nil
