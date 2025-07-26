@@ -36,11 +36,11 @@ func main() {
 }
 
 func newLogger() *slog.Logger {
-	var logHandler slog.Handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	var handler slog.Handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	})
 
-	logHandler = logConnID(logHandler)
+	handler = logConnID(handler)
 
-	return slog.New(logHandler)
+	return slog.New(handler)
 }
