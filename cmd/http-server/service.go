@@ -75,7 +75,7 @@ func (svc *service) signalListener(ctx context.Context) error {
 		logger.InfoContext(ctx, "Receive done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
 		return ctx.Err()
 	case sig := <-ch:
-		logger.InfoContext(ctx, "Received termination signal", "signal", sig)
+		logger.InfoContext(ctx, "Receive termination signal", "signal", sig)
 		return errTerminated
 	}
 }
