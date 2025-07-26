@@ -72,10 +72,10 @@ func (svc *service) signalListener(ctx context.Context) error {
 
 	select {
 	case <-ctx.Done():
-		logger.InfoContext(ctx, "Receive done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
+		logger.InfoContext(ctx, "Received done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
 		return ctx.Err()
 	case sig := <-ch:
-		logger.InfoContext(ctx, "Receive termination signal", "signal", sig)
+		logger.InfoContext(ctx, "Received termination signal", "signal", sig)
 		return errTerminated
 	}
 }
