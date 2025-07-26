@@ -69,6 +69,7 @@ func (h *httpHandler) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	err := h.delayReq(r)
 	if errors.Is(err, context.Canceled) {
 		if err := context.Cause(ctx); errors.Is(err, context.Canceled) {
+			// Client disconnection
 			logger.WarnContext(ctx, "Delay canceled due to client disconnection", "error", err)
 			return
 		}
