@@ -138,21 +138,22 @@ func (svc *service) httpServer(ctx context.Context) error {
 
 	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls, "h2c", svc.h2c)
 
-	if svc.tls {
-		if err := svr.ListenAndServeTLS("certs/cert.pem", "certs/key.pem"); err != http.ErrServerClosed {
-			logger.WarnContext(ctx, "HTTP server fail", "error", err)
-			return err
-		}
-	} else {
-		if err := svr.ListenAndServe(); err != http.ErrServerClosed {
-			logger.WarnContext(ctx, "HTTP server fail", "error", err)
-			return err
-		}
+	if err := svc.httpServe(svr); err != http.ErrServerClosed {
+		logger.WarnContext(ctx, "HTTP server fail", "error", err)
+		return err
 	}
 
 	logger.InfoContext(ctx, "HTTP server stopped")
 
 	return errTerminated
+}
+
+func (svc *service) httpServe(svr *http.Server) error {
+	if !svc.tls {
+		return svr.ListenAndServe()
+	}
+
+	return svr.ListenAndServeTLS("certs/cert.pem", "certs/key.pem")
 }
 
 func (svc *service) configureH2C(svr *http.Server) {
