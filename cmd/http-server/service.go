@@ -72,10 +72,10 @@ func (svc *service) signalListener(ctx context.Context) error {
 
 	select {
 	case <-ctx.Done():
-		logger.InfoContext(ctx, "Received done signal, stopping...", "error", ctx.Err(), "cause", context.Cause(ctx))
+		logger.InfoContext(ctx, "Done signal received", "error", ctx.Err(), "cause", context.Cause(ctx))
 		return ctx.Err()
 	case sig := <-ch:
-		logger.InfoContext(ctx, "Received termination signal", "signal", sig)
+		logger.InfoContext(ctx, "Termination signal received", "signal", sig)
 		return errTerminated
 	}
 }
@@ -125,7 +125,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 		case <-h.shutdown:
 			logger.InfoContext(ctx, "HTTP server shutdown signal received")
 		case <-ctx.Done():
-			logger.InfoContext(ctx, "Receive done signal, shutting down HTTP server...", "error", ctx.Err(), "cause", context.Cause(ctx))
+			logger.InfoContext(ctx, "Done signal received, shutting down HTTP server", "error", ctx.Err(), "cause", context.Cause(ctx))
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
