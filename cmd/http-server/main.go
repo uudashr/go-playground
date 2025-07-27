@@ -14,7 +14,7 @@ func main() {
 	)
 
 	flag.IntVar(&countDown, "countdown", 0, "Countdown before shutdown")
-	flag.BoolVar(&secure, "secure", false, "Enable TLS for the HTTP server (:8443 otherwise :8080)")
+	flag.BoolVar(&secure, "secure", false, "Enable TLS for the HTTP server (:8443 otherwise insecure at :8080)")
 	flag.BoolVar(&h2c, "h2c", false, "Enable HTTP/2 support over cleartext (h2c)")
 	flag.Parse()
 
