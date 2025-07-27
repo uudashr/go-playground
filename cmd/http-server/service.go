@@ -21,7 +21,7 @@ var errTerminated = errors.New("termination")
 type service struct {
 	logger    *slog.Logger
 	countDown int
-	tls       bool
+	secure    bool
 	h2c       bool
 }
 
@@ -81,7 +81,7 @@ func (svc *service) signalListener(ctx context.Context) error {
 }
 
 func (svc *service) httpAddr() string {
-	if svc.tls {
+	if svc.secure {
 		return ":8443"
 	}
 	return ":8080"
@@ -136,7 +136,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 		}
 	}()
 
-	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls, "h2c", svc.h2c)
+	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.secure, "h2c", svc.h2c)
 
 	if err := svc.httpServe(svr); err != http.ErrServerClosed {
 		logger.ErrorContext(ctx, "HTTP server failed", "error", err)
@@ -149,7 +149,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 }
 
 func (svc *service) httpServe(svr *http.Server) error {
-	if !svc.tls {
+	if !svc.secure {
 		return svr.ListenAndServe()
 	}
 
@@ -157,7 +157,7 @@ func (svc *service) httpServe(svr *http.Server) error {
 }
 
 func (svc *service) configureH2C(svr *http.Server) {
-	if !svc.tls {
+	if !svc.secure {
 		p := new(http.Protocols)
 		p.SetUnencryptedHTTP2(true) // Enable unencrypted HTTP/2
 		p.SetHTTP1(true)            // Ensure HTTP/1 is also supported
