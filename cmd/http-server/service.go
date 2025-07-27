@@ -139,7 +139,7 @@ func (svc *service) httpServer(ctx context.Context) error {
 	logger.InfoContext(ctx, "Starting HTTP server", "addr", svr.Addr, "tls", svc.tls, "h2c", svc.h2c)
 
 	if err := svc.httpServe(svr); err != http.ErrServerClosed {
-		logger.WarnContext(ctx, "HTTP server fail", "error", err)
+		logger.ErrorContext(ctx, "HTTP server fail", "error", err)
 		return err
 	}
 
