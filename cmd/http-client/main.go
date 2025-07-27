@@ -9,10 +9,12 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"os"
 	"sync"
 	"time"
 
+	"github.com/moby/moby/pkg/namesgenerator"
 	"golang.org/x/net/http2"
 )
 
@@ -55,6 +57,7 @@ func runMain() error {
 		client:         client,
 		delay:          delay,
 		calculateDelay: delayCalculatorOf(delayType),
+		connNames:      make(map[net.Conn]string),
 	}
 
 	if concurrent {
@@ -171,6 +174,9 @@ type httpAgent struct {
 	client         *http.Client
 	delay          time.Duration
 	calculateDelay delayCalculatorFunc
+
+	mu        sync.Mutex
+	connNames map[net.Conn]string
 }
 
 func (ha *httpAgent) sendRequest(i int) error {
@@ -186,6 +192,13 @@ func (ha *httpAgent) sendRequest(i int) error {
 		assignDelay(req, d)
 	}
 
+	var conn net.Conn
+	req = req.WithContext(httptrace.WithClientTrace(context.Background(), &httptrace.ClientTrace{
+		GotConn: func(info httptrace.GotConnInfo) {
+			conn = info.Conn
+		},
+	}))
+
 	fmt.Printf("Send req-%03d ==> %s\n", num, req.URL.String())
 	res, err := ha.client.Do(req)
 	if err != nil {
@@ -199,24 +212,41 @@ func (ha *httpAgent) sendRequest(i int) error {
 		return fmt.Errorf("read body error: %w", err)
 	}
 
+	connName := ha.connName(conn)
+
 	if connID := res.Header.Get("X-Connection-ID"); connID != "" {
-		fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Conn ID: %s, Body: %s\n",
+		fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Clt Conn ID: %s, Svr Conn ID: %s, Body: %s\n",
 			num,
 			res.StatusCode, res.Status,
 			res.Proto,
+			connName,
 			connID,
 			string(b))
 
 		return nil
 	}
 
-	fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Body: %s\n",
+	fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Clt Conn ID: %s, Body: %s\n",
 		num,
 		res.StatusCode, res.Status,
 		res.Proto,
+		connName,
 		string(b))
 
 	return nil
+}
+
+func (ha *httpAgent) connName(conn net.Conn) string {
+	ha.mu.Lock()
+	defer ha.mu.Unlock()
+
+	name := ha.connNames[conn]
+	if name == "" {
+		name = namesgenerator.GetRandomName(0)
+		ha.connNames[conn] = name
+	}
+
+	return name
 }
 
 func assignDelay(r *http.Request, d time.Duration) {
