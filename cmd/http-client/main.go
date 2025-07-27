@@ -215,7 +215,7 @@ func (ha *httpAgent) sendRequest(i int) error {
 	connName := ha.connName(conn)
 
 	if connID := res.Header.Get("X-Connection-ID"); connID != "" {
-		fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Client Conn ID: %s, Server Conn ID: %s, Body: %s\n",
+		fmt.Printf("Resp req-%03d --> Status: (%d) %s, Proto: %s, Client Conn ID: %s, Server Conn ID: %s, Body: %s\n",
 			num,
 			res.StatusCode, res.Status,
 			res.Proto,
@@ -226,7 +226,7 @@ func (ha *httpAgent) sendRequest(i int) error {
 		return nil
 	}
 
-	fmt.Printf("Resp req-%03d --> Status: %d %s, Proto: %s, Client Conn ID: %s, Body: %s\n",
+	fmt.Printf("Resp req-%03d --> Status: (%d) %s, Proto: %s, Client Conn ID: %s, Body: %s\n",
 		num,
 		res.StatusCode, res.Status,
 		res.Proto,
