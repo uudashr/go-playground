@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/moby/moby/pkg/namesgenerator"
+	"golang.org/x/net/http2"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -19,10 +20,13 @@ import (
 var errTerminated = errors.New("termination")
 
 type service struct {
-	logger    *slog.Logger
+	logger *slog.Logger
+
 	countDown int
-	secure    bool
-	h2c       bool
+
+	secure              bool
+	maxConcurrentStream uint32
+	h2c                 bool
 }
 
 func (svc *service) run() error {
@@ -106,6 +110,12 @@ func (svc *service) httpServer(ctx context.Context) error {
 			logger.DebugContext(ctx, "HTTP server connection context created", "localAddr", c.LocalAddr())
 			return ctx
 		},
+	}
+
+	if val := svc.maxConcurrentStream; val > 0 {
+		http2.ConfigureServer(svr, &http2.Server{
+			MaxConcurrentStreams: val,
+		})
 	}
 
 	if svc.h2c {
