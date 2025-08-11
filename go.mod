@@ -27,6 +27,7 @@ require (
 	github.com/graphql-go/graphql v0.8.1
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hamba/avro/v2 v2.29.0
+	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/moby/moby v28.3.2+incompatible
 	github.com/open-feature/go-sdk v1.15.1
@@ -41,6 +42,7 @@ require (
 	go.uber.org/zap/exp v0.3.0
 	golang.org/x/net v0.42.0
 	golang.org/x/sync v0.16.0
+	golang.org/x/time v0.12.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
@@ -54,6 +56,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/jonboulle/clockwork v0.5.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
