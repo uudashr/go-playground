@@ -244,6 +244,7 @@ func (ha *httpAgent) connName(conn net.Conn) string {
 	if name == "" {
 		name = namesgenerator.GetRandomName(0)
 		ha.connNames[conn] = name
+		return name
 	}
 
 	return name
