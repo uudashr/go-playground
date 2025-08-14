@@ -1,6 +1,6 @@
 module github.com/uudashr/go-playground
 
-go 1.24.5
+go 1.25.0
 
 require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
@@ -11,16 +11,16 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.6.0
 	go.uber.org/dig v1.16.0
-	golang.org/x/tools v0.35.0
+	golang.org/x/tools v0.36.0
 )
 
 require (
-	github.com/a-h/templ v0.3.920
+	github.com/a-h/templ v0.3.924
 	github.com/biter777/countries v1.7.5
 	github.com/cbroglie/mustache v1.4.0
 	github.com/davidbanham/human_duration v1.4.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-co-op/gocron/v2 v2.16.2
+	github.com/go-co-op/gocron/v2 v2.16.3
 	github.com/go-playground/tz v0.0.1
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/google/go-cmp v0.6.0
@@ -29,7 +29,7 @@ require (
 	github.com/hamba/avro/v2 v2.29.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/moby/moby v28.3.2+incompatible
+	github.com/moby/moby v28.3.3+incompatible
 	github.com/open-feature/go-sdk v1.15.1
 	github.com/ovechkin-dm/mockio v1.0.1
 	github.com/ringsaturn/tzf v1.0.0
@@ -40,10 +40,10 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.3.0
-	golang.org/x/net v0.42.0
+	golang.org/x/net v0.43.0
 	golang.org/x/sync v0.16.0
 	golang.org/x/time v0.12.0
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/protobuf v1.36.7
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
 
@@ -79,7 +79,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.4 // indirect
 	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 )
 
 require (
@@ -87,9 +87,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twpayne/go-polyline v1.1.1
-	golang.org/x/crypto v0.40.0
-	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/text v0.27.0
+	golang.org/x/crypto v0.41.0
+	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/text v0.28.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
