@@ -6,10 +6,13 @@ import (
 
 func main() {
 	options := []string{"credit-card", "cash", "wallet"}
-	fmt.Println("options:", options, len(options), cap(options))
+	fmt.Println("--- Before ---")
+	fmt.Printf("options: %v len=%d cap=%d\n", options, len(options), cap(options))
+
+	fmt.Println("--- After ---")
 	filtered := filterPaymentTypes(options)
-	fmt.Println("options:", options, len(options), cap(options))
-	fmt.Println("filtered:", filtered, len(filtered), cap(filtered))
+	fmt.Printf("options: %v len=%d cap=%d\n", options, len(options), cap(options))
+	fmt.Printf("filtered: %v len=%d cap=%d\n", filtered, len(filtered), cap(filtered))
 
 	// Observation:
 	// - the options length is remain the same, but the values are changed
@@ -25,7 +28,7 @@ func filterPaymentTypes(opts []string) []string {
 			break
 		}
 	}
-	fmt.Println("opts:", opts, len(opts), cap(opts))
-	fmt.Println("out:", out, len(out), cap(out))
+	fmt.Printf("opts: %v len=%d cap=%d\n", opts, len(opts), cap(opts))
+	fmt.Printf("out: %v len=%d\n", out, len(out), cap(out))
 	return out
 }
