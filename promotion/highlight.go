@@ -23,7 +23,9 @@ type HighlightSpec struct {
 }
 
 type HighlightBuilder struct {
-	Clock Clock
+	Expiration  ExpirationFormat
+	Utilization UtilizationFormat
+	Clock       Clock
 }
 
 func (hb *HighlightBuilder) Build(spec HighlightSpec) (*Highlight, error) {
@@ -31,7 +33,7 @@ func (hb *HighlightBuilder) Build(spec HighlightSpec) (*Highlight, error) {
 
 	var expiration string
 	if !spec.NoExpiration {
-		exp, err := FormatExpiration(now, spec.ExpiresAt)
+		exp, err := hb.Expiration.FormatExpiration(now, spec.ExpiresAt)
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +41,7 @@ func (hb *HighlightBuilder) Build(spec HighlightSpec) (*Highlight, error) {
 		expiration = exp
 	}
 
-	utilization, err := FormatUtilization(spec.UsageCount, spec.MaxUsage)
+	utilization, err := hb.Utilization.FormatUtilization(spec.UsageCount, spec.MaxUsage)
 	if err != nil {
 		return nil, err
 	}

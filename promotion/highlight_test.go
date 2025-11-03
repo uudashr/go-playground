@@ -7,18 +7,21 @@ import (
 	"github.com/uudashr/go-playground/promotion"
 )
 
-// TODO: should support custom message and format (for multi-language)
-func TestHighlight(t *testing.T) {
+func TestHighlightBuilder(t *testing.T) {
 	timeLayout := "2006-01-02T15:04:05-07:00"
 	tests := []struct {
-		name            string
-		now             string
-		promoExpiresAt  string
-		noExpiration    bool
-		promoMaxUsage   int
-		promoUsageCount int
-		expectLine1     string
-		expectLine2     string
+		name                string
+		now                 string
+		promoExpiresAt      string
+		noExpiration        bool
+		promoMaxUsage       int
+		promoUsageCount     int
+		expiresTodayMessage string
+		dateFormat          promotion.TimeFormatter
+		expirationFormat    string
+		utilizationFormat   string
+		expectLine1         string
+		expectLine2         string
 	}{
 		{
 			name:           "Case 1",
@@ -29,6 +32,15 @@ func TestHighlight(t *testing.T) {
 			expectLine2:    "Unlimited rides",
 		},
 		{
+			name:                "Case 1, custom expiration format",
+			now:                 "2025-01-15T14:45:05+07:00",
+			promoExpiresAt:      "2025-01-15T22:00:00+07:00",
+			promoMaxUsage:       0,
+			expiresTodayMessage: "For today only",
+			expectLine1:         "For today only",
+			expectLine2:         "Unlimited rides",
+		},
+		{
 			name:            "Case 2",
 			now:             "2025-01-15T14:45:05+07:00",
 			promoExpiresAt:  "2025-03-14T22:00:00+07:00",
@@ -36,6 +48,27 @@ func TestHighlight(t *testing.T) {
 			promoMaxUsage:   15,
 			expectLine1:     "Expires 14 March 2025",
 			expectLine2:     "10 rides left",
+		},
+		{
+			name:             "Case 2, custom expires format",
+			now:              "2025-01-15T14:45:05+07:00",
+			promoExpiresAt:   "2025-03-14T22:00:00+07:00",
+			promoUsageCount:  5,
+			promoMaxUsage:    15,
+			dateFormat:       promotion.TimeFormat("January 2, 2006"),
+			expirationFormat: "Until %s",
+			expectLine1:      "Until March 14, 2025",
+			expectLine2:      "10 rides left",
+		},
+		{
+			name:              "Case 2, custom utilization",
+			now:               "2025-01-15T14:45:05+07:00",
+			promoExpiresAt:    "2025-03-14T22:00:00+07:00",
+			promoUsageCount:   5,
+			promoMaxUsage:     15,
+			utilizationFormat: "%d rides remaining",
+			expectLine1:       "Expires 14 March 2025",
+			expectLine2:       "10 rides remaining",
 		},
 		{
 			name:          "No expiration",
@@ -64,6 +97,14 @@ func TestHighlight(t *testing.T) {
 			}
 
 			builder := &promotion.HighlightBuilder{
+				Expiration: promotion.ExpirationFormat{
+					ExpiresTodayMessage: tt.expiresTodayMessage,
+					DateFormat:          tt.dateFormat,
+					Format:              tt.expirationFormat,
+				},
+				Utilization: promotion.UtilizationFormat{
+					Format: tt.utilizationFormat,
+				},
 				Clock: &staticClock{now},
 			}
 
