@@ -71,26 +71,6 @@ func (sc sysClock) Now() time.Time {
 
 var ErrExpired = errors.New("expired error")
 
-func FormatExpiration(now time.Time, expiresAt time.Time) (string, error) {
-	expFormat := &ExpirationFormat{}
-	return expFormat.FormatExpiration(now, expiresAt)
-	// 	days := cal.DayDiff(expiresAt, now)
-	// if days < 0 {
-	// 	return "", ErrExpired
-	// }
-	//
-	// // Expiration can happen on the same day
-	// if !now.Before(expiresAt) {
-	// 	return "", ErrExpired
-	// }
-	//
-	// if days == 0 {
-	// 	return "Available only today", nil
-	// }
-	//
-	// return "Expires " + expiresAt.Format("2 January 2006"), nil
-}
-
 type TimeFormat string
 
 func (tf TimeFormat) Format(t time.Time) string {
@@ -157,14 +137,33 @@ func (ef *ExpirationFormat) FormatExpiration(now time.Time, expiresAt time.Time)
 	return fmt.Sprintf(expirationFormat, expDate), nil
 }
 
+func FormatExpiration(now time.Time, expiresAt time.Time) (string, error) {
+	expFormat := ExpirationFormat{}
+	return expFormat.FormatExpiration(now, expiresAt)
+}
+
 var (
 	ErrOverused   = errors.New("overused error")
 	ErrReachedMax = errors.New("reached max error")
 )
 
-func FormatUtilization(usageCount int, maxUsage int) (string, error) {
+var (
+	DefaultUnlimitedMessage  = "Unlimited rides"
+	DefaultUtilizationFormat = "%d rides left"
+)
+
+type UtilizationFormat struct {
+	UnlimitedMessage string
+	Format           string
+}
+
+func (uf UtilizationFormat) FormatUtilization(usageCount int, maxUsage int) (string, error) {
 	if maxUsage == 0 {
-		return "Unlimited rides", nil
+		if uf.UnlimitedMessage == "" {
+			return DefaultUnlimitedMessage, nil
+		}
+
+		return uf.UnlimitedMessage, nil
 	}
 
 	remaining := maxUsage - usageCount
@@ -176,5 +175,15 @@ func FormatUtilization(usageCount int, maxUsage int) (string, error) {
 		return "", ErrOverused
 	}
 
-	return fmt.Sprintf("%d rides left", remaining), nil
+	utilizationFormat := uf.Format
+	if utilizationFormat == "" {
+		utilizationFormat = DefaultUtilizationFormat
+	}
+
+	return fmt.Sprintf(utilizationFormat, remaining), nil
+}
+
+func FormatUtilization(usageCount int, maxUsage int) (string, error) {
+	fmt := UtilizationFormat{}
+	return fmt.FormatUtilization(usageCount, maxUsage)
 }

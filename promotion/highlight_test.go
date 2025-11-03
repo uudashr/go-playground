@@ -313,6 +313,84 @@ func TestFormatUtilization(t *testing.T) {
 	}
 }
 
+func TestUtilizationFormat(t *testing.T) {
+	tests := []struct {
+		name              string
+		maxUsage          int
+		usageCount        int
+		unlimitedMessage  string
+		utilizationFormat string
+		expectError       error
+		expectUtilization string
+	}{
+		{
+			name:              "Case 1",
+			maxUsage:          0,
+			expectUtilization: "Unlimited rides",
+		},
+		{
+			name:              "Case 1, custom unlimited message",
+			maxUsage:          0,
+			unlimitedMessage:  "No limit",
+			expectUtilization: "No limit",
+		},
+		{
+			name:              "Case 2",
+			usageCount:        5,
+			maxUsage:          15,
+			expectUtilization: "10 rides left",
+		},
+		{
+			name:              "Case 2, custom format",
+			usageCount:        5,
+			maxUsage:          15,
+			utilizationFormat: "%d rides remaining",
+			expectUtilization: "10 rides remaining",
+		},
+		{
+			name:              "No max, has some usage",
+			maxUsage:          0,
+			usageCount:        2,
+			expectUtilization: "Unlimited rides",
+		},
+		{
+			name:        "Overused",
+			maxUsage:    3,
+			usageCount:  4,
+			expectError: promotion.ErrOverused,
+		},
+		{
+			name:        "Reached max",
+			maxUsage:    3,
+			usageCount:  3,
+			expectError: promotion.ErrReachedMax,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Arrange
+			fmt := promotion.UtilizationFormat{
+				UnlimitedMessage: tt.unlimitedMessage,
+				Format:           tt.utilizationFormat,
+			}
+
+			// Act
+			out, err := fmt.FormatUtilization(tt.usageCount, tt.maxUsage)
+
+			// Assert
+			if got, want := err, tt.expectError; got != want {
+				t.Errorf("FormatUtilization err got: %v, want: %v", got, want)
+			}
+
+			if got, want := out, tt.expectUtilization; got != want {
+				t.Errorf("FormatUtilization got: %q, want: %q", got, want)
+			}
+
+		})
+	}
+}
+
 type staticClock struct {
 	now time.Time
 }
