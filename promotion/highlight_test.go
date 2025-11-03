@@ -13,6 +13,7 @@ func TestHighlight(t *testing.T) {
 		name            string
 		now             string
 		promoExpiresAt  string
+		noExpiration    bool
 		promoMaxUsage   int
 		promoUsageCount int
 		expectLine1     string
@@ -35,6 +36,14 @@ func TestHighlight(t *testing.T) {
 			expectLine1:     "Expires 14 March 2025",
 			expectLine2:     "10 rides left",
 		},
+		{
+			name:          "No expiration",
+			now:           "2025-01-15T14:45:05+07:00",
+			noExpiration:  true,
+			promoMaxUsage: 0,
+			expectLine1:   "",
+			expectLine2:   "Unlimited rides",
+		},
 	}
 
 	for _, tt := range tests {
@@ -45,9 +54,12 @@ func TestHighlight(t *testing.T) {
 				t.Fatalf("Fail to parse now %q: %v", tt.promoExpiresAt, err)
 			}
 
-			expiresAt, err := time.ParseInLocation(timeLayout, tt.promoExpiresAt, time.Local)
-			if err != nil {
-				t.Fatalf("Fail to parse promoExpiresAt %q: %v", tt.promoExpiresAt, err)
+			var expiresAt time.Time
+			if tt.promoExpiresAt != "" {
+				expiresAt, err = time.ParseInLocation(timeLayout, tt.promoExpiresAt, time.Local)
+				if err != nil {
+					t.Fatalf("Fail to parse promoExpiresAt %q: %v", tt.promoExpiresAt, err)
+				}
 			}
 
 			builder := &promotion.HighlightBuilder{
@@ -56,9 +68,10 @@ func TestHighlight(t *testing.T) {
 
 			// Act
 			highlight, err := builder.Build(promotion.HighlightSpec{
-				ExpiresAt:  expiresAt,
-				UsageCount: tt.promoUsageCount,
-				MaxUsage:   tt.promoMaxUsage,
+				ExpiresAt:    expiresAt,
+				NoExpiration: tt.noExpiration,
+				UsageCount:   tt.promoUsageCount,
+				MaxUsage:     tt.promoMaxUsage,
 			})
 			if err != nil {
 				t.Fatalf("Fail to build highlight: %v", err)
@@ -82,6 +95,7 @@ func TestFormatExpiration(t *testing.T) {
 		name             string
 		now              string
 		expiresAt        string
+		expectError      error
 		expectExpiration string
 	}{
 		{
@@ -95,6 +109,18 @@ func TestFormatExpiration(t *testing.T) {
 			now:              "2025-01-15T14:45:05+07:00",
 			expiresAt:        "2025-03-14T22:00:00+07:00",
 			expectExpiration: "Expires 14 March 2025",
+		},
+		{
+			name:        "Reached expiration on the same day",
+			now:         "2025-01-15T14:45:05+07:00",
+			expiresAt:   "2025-01-15T13:45:05+07:00",
+			expectError: promotion.ErrExpired,
+		},
+		{
+			name:        "Reached expiration on previous day",
+			now:         "2025-01-15T14:45:05+07:00",
+			expiresAt:   "2025-01-14T14:45:05+07:00",
+			expectError: promotion.ErrExpired,
 		},
 	}
 
@@ -113,11 +139,12 @@ func TestFormatExpiration(t *testing.T) {
 
 			// Act
 			out, err := promotion.FormatExpiration(now, expiresAt)
-			if err != nil {
-				t.Fatalf("Fail to FormatExpiration: %v", err)
-			}
 
 			// Assert
+			if got, want := err, tt.expectError; got != want {
+				t.Fatalf("FormatExpiration err got: %v, want: %v", got, want)
+			}
+
 			if got, want := out, tt.expectExpiration; got != want {
 				t.Errorf("FormatExpiration got: %q, want: %q", got, want)
 			}
@@ -130,6 +157,7 @@ func TestFormatUtilization(t *testing.T) {
 		name              string
 		maxUsage          int
 		usageCount        int
+		expectError       error
 		expectUtilization string
 	}{
 		{
@@ -143,17 +171,36 @@ func TestFormatUtilization(t *testing.T) {
 			maxUsage:          15,
 			expectUtilization: "10 rides left",
 		},
+		{
+			name:              "No max, has some usage",
+			maxUsage:          0,
+			usageCount:        2,
+			expectUtilization: "Unlimited rides",
+		},
+		{
+			name:        "Overused",
+			maxUsage:    3,
+			usageCount:  4,
+			expectError: promotion.ErrOverused,
+		},
+		{
+			name:        "Reached max",
+			maxUsage:    3,
+			usageCount:  3,
+			expectError: promotion.ErrReachedMax,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Act
 			out, err := promotion.FormatUtilization(tt.usageCount, tt.maxUsage)
-			if err != nil {
-				t.Fatalf("Fail to FormatUtilization: %v", err)
-			}
 
 			// Assert
+			if got, want := err, tt.expectError; got != want {
+				t.Errorf("FormatUtilization err got: %v, want: %v", got, want)
+			}
+
 			if got, want := out, tt.expectUtilization; got != want {
 				t.Errorf("FormatUtilization got: %q, want: %q", got, want)
 			}
