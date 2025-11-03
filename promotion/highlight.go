@@ -72,6 +72,57 @@ func (sc sysClock) Now() time.Time {
 var ErrExpired = errors.New("expired error")
 
 func FormatExpiration(now time.Time, expiresAt time.Time) (string, error) {
+	expFormat := &ExpirationFormat{}
+	return expFormat.FormatExpiration(now, expiresAt)
+	// 	days := cal.DayDiff(expiresAt, now)
+	// if days < 0 {
+	// 	return "", ErrExpired
+	// }
+	//
+	// // Expiration can happen on the same day
+	// if !now.Before(expiresAt) {
+	// 	return "", ErrExpired
+	// }
+	//
+	// if days == 0 {
+	// 	return "Available only today", nil
+	// }
+	//
+	// return "Expires " + expiresAt.Format("2 January 2006"), nil
+}
+
+type TimeFormat string
+
+func (tf TimeFormat) Format(t time.Time) string {
+	return t.Format(string(tf))
+}
+
+type SimpleDateFormat struct {
+	MonthNames []string
+}
+
+func (sdf *SimpleDateFormat) Format(t time.Time) string {
+	monthName := sdf.MonthNames[t.Month()-1]
+	return fmt.Sprintf("%d %s %d", t.Day(), monthName, t.Year())
+}
+
+var (
+	DefaultTimeFormat          = TimeFormat("2 January 2006")
+	DefaultExpirationFormat    = "Expires %s"
+	DefaultExpiresTodayMessage = "Available only today"
+)
+
+type TimeFormatter interface {
+	Format(time.Time) string
+}
+
+type ExpirationFormat struct {
+	DateFormat          TimeFormatter
+	Format              string
+	ExpiresTodayMessage string
+}
+
+func (ef *ExpirationFormat) FormatExpiration(now time.Time, expiresAt time.Time) (string, error) {
 	days := cal.DayDiff(expiresAt, now)
 	if days < 0 {
 		return "", ErrExpired
@@ -83,10 +134,27 @@ func FormatExpiration(now time.Time, expiresAt time.Time) (string, error) {
 	}
 
 	if days == 0 {
-		return "Available only today", nil
+		if ef.ExpiresTodayMessage == "" {
+			return DefaultExpiresTodayMessage, nil
+		}
+
+		return ef.ExpiresTodayMessage, nil
 	}
 
-	return "Expires " + expiresAt.Format("2 January 2006"), nil
+	// Prepare date format
+	dateFormat := ef.DateFormat
+	if dateFormat == nil {
+		dateFormat = DefaultTimeFormat
+	}
+
+	// Prepare expiration format
+	expirationFormat := ef.Format
+	if expirationFormat == "" {
+		expirationFormat = DefaultExpirationFormat
+	}
+
+	expDate := dateFormat.Format(expiresAt)
+	return fmt.Sprintf(expirationFormat, expDate), nil
 }
 
 var (

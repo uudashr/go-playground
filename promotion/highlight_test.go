@@ -7,6 +7,7 @@ import (
 	"github.com/uudashr/go-playground/promotion"
 )
 
+// TODO: should support custom message and format (for multi-language)
 func TestHighlight(t *testing.T) {
 	timeLayout := "2006-01-02T15:04:05-07:00"
 	tests := []struct {
@@ -147,6 +148,109 @@ func TestFormatExpiration(t *testing.T) {
 
 			if got, want := out, tt.expectExpiration; got != want {
 				t.Errorf("FormatExpiration got: %q, want: %q", got, want)
+			}
+		})
+	}
+}
+
+func TestExpirationFormat(t *testing.T) {
+	timeLayout := "2006-01-02T15:04:05-07:00"
+	tests := []struct {
+		name                   string
+		now                    string
+		expiresAt              string
+		dateFormat             promotion.TimeFormatter
+		expirationFormat       string
+		expirationTodayMessage string
+		expectError            error
+		expectExpiration       string
+	}{
+		{
+			name:             "Case 1",
+			now:              "2025-01-15T14:45:05+07:00",
+			expiresAt:        "2025-01-15T22:00:00+07:00",
+			expectExpiration: "Available only today",
+		},
+		{
+			name:                   "Case 1, custom today message",
+			now:                    "2025-01-15T14:45:05+07:00",
+			expiresAt:              "2025-01-15T22:00:00+07:00",
+			expirationTodayMessage: "Until today only",
+			expectExpiration:       "Until today only",
+		},
+		{
+			name:             "Case 2",
+			now:              "2025-01-15T14:45:05+07:00",
+			expiresAt:        "2025-03-14T22:00:00+07:00",
+			expectExpiration: "Expires 14 March 2025",
+		},
+		{
+			name:             "Case 2, custom date format",
+			now:              "2025-01-15T14:45:05+07:00",
+			expiresAt:        "2025-03-14T22:00:00+07:00",
+			dateFormat:       promotion.TimeFormat("January 2, 2006"),
+			expectExpiration: "Expires March 14, 2025",
+		},
+		{
+			name:             "Case 2, ID language",
+			now:              "2025-01-15T14:45:05+07:00",
+			expiresAt:        "2025-03-14T22:00:00+07:00",
+			expirationFormat: "Sampai dengan %s",
+			dateFormat: &promotion.SimpleDateFormat{
+				MonthNames: []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "July", "Agustus", "September", "Oktober", "November", "Desember"},
+			},
+			expectExpiration: "Sampai dengan 14 Maret 2025",
+		},
+		{
+			name:             "Case 2, custom expiration format",
+			now:              "2025-01-15T14:45:05+07:00",
+			expiresAt:        "2025-03-14T22:00:00+07:00",
+			expirationFormat: "Expires at %s",
+			expectExpiration: "Expires at 14 March 2025",
+		},
+		{
+			name:        "Reached expiration on the same day",
+			now:         "2025-01-15T14:45:05+07:00",
+			expiresAt:   "2025-01-15T13:45:05+07:00",
+			expectError: promotion.ErrExpired,
+		},
+		{
+			name:        "Reached expiration on previous day",
+			now:         "2025-01-15T14:45:05+07:00",
+			expiresAt:   "2025-01-14T14:45:05+07:00",
+			expectError: promotion.ErrExpired,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Arrange
+			now, err := time.ParseInLocation(timeLayout, tt.now, time.Local)
+			if err != nil {
+				t.Fatalf("Fail to parse now %q: %v", tt.now, err)
+			}
+
+			expiresAt, err := time.ParseInLocation(timeLayout, tt.expiresAt, time.Local)
+			if err != nil {
+				t.Fatalf("Fail to parse expiresAt %q: %v", tt.expiresAt, err)
+			}
+
+			fmt := promotion.ExpirationFormat{
+				ExpiresTodayMessage: tt.expirationTodayMessage,
+				DateFormat:          tt.dateFormat,
+				Format:              tt.expirationFormat,
+			}
+
+			// Act
+			out, err := fmt.FormatExpiration(now, expiresAt)
+
+			// Assert
+			if got, want := err, tt.expectError; got != want {
+				t.Fatalf("Format err got: %v, want: %v", got, want)
+			}
+
+			if got, want := out, tt.expectExpiration; got != want {
+				t.Errorf("Format got: %q, want: %q", got, want)
 			}
 		})
 	}
