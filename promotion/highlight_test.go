@@ -85,14 +85,14 @@ func TestHighlightBuilder(t *testing.T) {
 			// Arrange
 			now, err := time.ParseInLocation(timeLayout, tt.now, time.Local)
 			if err != nil {
-				t.Fatalf("Fail to parse now %q: %v", tt.promoExpiresAt, err)
+				t.Fatalf("Failed to parse 'now' %q: %v", tt.promoExpiresAt, err)
 			}
 
 			var expiresAt time.Time
 			if tt.promoExpiresAt != "" {
 				expiresAt, err = time.ParseInLocation(timeLayout, tt.promoExpiresAt, time.Local)
 				if err != nil {
-					t.Fatalf("Fail to parse promoExpiresAt %q: %v", tt.promoExpiresAt, err)
+					t.Fatalf("Failed to parse 'promoExpiresAt' %q: %v", tt.promoExpiresAt, err)
 				}
 			}
 
@@ -116,7 +116,7 @@ func TestHighlightBuilder(t *testing.T) {
 				MaxUsage:     tt.promoMaxUsage,
 			})
 			if err != nil {
-				t.Fatalf("Fail to build highlight: %v", err)
+				t.Fatalf("Failed to build highlight: %v", err)
 			}
 
 			// Assert
@@ -171,12 +171,12 @@ func TestFormatExpiration(t *testing.T) {
 			// Arrange
 			now, err := time.ParseInLocation(timeLayout, tt.now, time.Local)
 			if err != nil {
-				t.Fatalf("Fail to parse now %q: %v", tt.now, err)
+				t.Fatalf("Failed to parse 'now' %q: %v", tt.now, err)
 			}
 
 			expiresAt, err := time.ParseInLocation(timeLayout, tt.expiresAt, time.Local)
 			if err != nil {
-				t.Fatalf("Fail to parse expiresAt %q: %v", tt.expiresAt, err)
+				t.Fatalf("Failed to parse 'expiresAt' %q: %v", tt.expiresAt, err)
 			}
 
 			// Act
@@ -238,7 +238,7 @@ func TestExpirationFormat(t *testing.T) {
 			expiresAt:        "2025-03-14T22:00:00+07:00",
 			expirationFormat: "Sampai dengan %s",
 			dateFormat: &promotion.SimpleDateFormat{
-				MonthNames: []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "July", "Agustus", "September", "Oktober", "November", "Desember"},
+				Months: []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "July", "Agustus", "September", "Oktober", "November", "Desember"},
 			},
 			expectExpiration: "Sampai dengan 14 Maret 2025",
 		},
@@ -268,12 +268,12 @@ func TestExpirationFormat(t *testing.T) {
 			// Arrange
 			now, err := time.ParseInLocation(timeLayout, tt.now, time.Local)
 			if err != nil {
-				t.Fatalf("Fail to parse now %q: %v", tt.now, err)
+				t.Fatalf("Failed to parse 'now' %q: %v", tt.now, err)
 			}
 
 			expiresAt, err := time.ParseInLocation(timeLayout, tt.expiresAt, time.Local)
 			if err != nil {
-				t.Fatalf("Fail to parse expiresAt %q: %v", tt.expiresAt, err)
+				t.Fatalf("Failed to parse 'expiresAt' %q: %v", tt.expiresAt, err)
 			}
 
 			fmt := promotion.ExpirationFormat{
@@ -428,6 +428,50 @@ func TestUtilizationFormat(t *testing.T) {
 				t.Errorf("FormatUtilization got: %q, want: %q", got, want)
 			}
 
+		})
+	}
+}
+
+func TestSimpleDateFormat(t *testing.T) {
+	timeLayout := "2006-01-02T15:04:05-07:00"
+	tests := []struct {
+		name      string
+		time      string
+		months    []string
+		expectOut string
+	}{
+		{
+			name:      "No month defined",
+			time:      "2025-01-15T14:45:05+07:00",
+			expectOut: "15 January 2025",
+		},
+		{
+			name:      "With month defined",
+			time:      "2025-01-15T14:45:05+07:00",
+			months:    []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "July", "Agustus", "September", "Oktober", "November", "Desember"},
+			expectOut: "15 Januari 2025",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			val, err := time.ParseInLocation(timeLayout, tt.time, time.Local)
+			if err != nil {
+				t.Fatalf("Failed to parse 'time' %q: %v", tt.time, err)
+			}
+
+			// Arrange
+			df := promotion.SimpleDateFormat{
+				Months: tt.months,
+			}
+
+			// Act
+			out := df.Format(val)
+
+			// Assert
+			if got, want := out, tt.expectOut; got != want {
+				t.Errorf("Format got: %q, want: %q", got, want)
+			}
 		})
 	}
 }

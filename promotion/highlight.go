@@ -79,13 +79,23 @@ func (tf TimeFormat) Format(t time.Time) string {
 	return t.Format(string(tf))
 }
 
+var DefaultMonths = []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
+
 type SimpleDateFormat struct {
-	MonthNames []string
+	Months []string
 }
 
 func (sdf *SimpleDateFormat) Format(t time.Time) string {
-	monthName := sdf.MonthNames[t.Month()-1]
+	monthName := sdf.monthName(t.Month())
 	return fmt.Sprintf("%d %s %d", t.Day(), monthName, t.Year())
+}
+
+func (sdf *SimpleDateFormat) monthName(month time.Month) string {
+	if len(sdf.Months) == 0 {
+		return DefaultMonths[month-1]
+	}
+
+	return sdf.Months[month-1]
 }
 
 var (
