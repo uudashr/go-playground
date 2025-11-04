@@ -441,12 +441,12 @@ func TestSimpleDateFormat(t *testing.T) {
 		expectOut string
 	}{
 		{
-			name:      "No month defined",
+			name:      "No months defined",
 			time:      "2025-01-15T14:45:05+07:00",
 			expectOut: "15 January 2025",
 		},
 		{
-			name:      "With month defined",
+			name:      "With months defined",
 			time:      "2025-01-15T14:45:05+07:00",
 			months:    []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "July", "Agustus", "September", "Oktober", "November", "Desember"},
 			expectOut: "15 Januari 2025",
